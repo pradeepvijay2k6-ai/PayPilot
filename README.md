@@ -9,8 +9,8 @@
     <a href="http://localhost:5173">Live Demo</a> •
     <a href="#feature-1-multi-agent-financial-intelligence">Multi-Agent Intelligence</a> •
     <a href="#feature-2-autonomous-financial-workflow-automation">AI Automation Center</a> •
+    <a href="#feature-3-smartsettle-ai-payment-negotiator">SmartSettle Negotiator</a> •
     <a href="#quick-start">Quick Start</a> •
-    <a href="#paypal-setup">PayPal Setup</a> •
     <a href="#architecture">Architecture</a>
   </p>
 </div>
@@ -19,19 +19,19 @@
 
 ## 🧠 Problem Statement
 
-Small businesses, freelancers, and entrepreneurs waste enormous time on repetitive financial operations — creating invoices, chasing overdue payments, understanding their revenue, and managing customer accounts. These tasks require navigating multiple tools, logging into PayPal manually, and generating reports by hand.
+Small businesses, freelancers, and entrepreneurs waste enormous time on repetitive financial operations — creating invoices, chasing overdue payments, understanding their revenue, and managing customer accounts. When customers face temporary cash-flow shortages, businesses often lack the tools to structure mutually agreeable installment arrangements, resulting in delayed receivables or unpaid debt.
 
 ## 💡 The Solution: PayPilot
 
-PayPilot is an **autonomous AI financial operations agent** that lets business owners manage their entire PayPal financial workflow through natural language and autonomous event-driven workflows.
+PayPilot is an **autonomous AI financial operations agent** that lets business owners manage their entire PayPal financial workflow through natural language, autonomous event-driven workflows, and automated installment negotiations.
 
-Instead of clicking through menus or guessing what needs attention:
 - **Multiple specialized AI agents** collaborate to audit business health, forecast cash flow, sequence delinquent accounts, and monitor transaction integrity.
 - An **autonomous AI Automation Center** continuously detects financial events (overdue invoices, unlinked settlements, pending payments), stages intelligent workflows, and executes real PayPal operations only upon explicit human authorization.
+- **SmartSettle AI Payment Negotiator** bridges businesses and customers by structuring flexible, transparent installment agreements when customers cannot pay in full, with seamless PayPal milestone checkout.
 
 ---
 
-## 🌟 TWO STANDOUT INNOVATIONS
+## 🌟 THREE STANDOUT INNOVATIONS
 
 ### FEATURE 1: MULTI-AGENT FINANCIAL INTELLIGENCE
 A central AI Orchestrator receives complex financial inquiries and convenes a council of three specialized agents that execute in parallel across live database records:
@@ -143,10 +143,52 @@ An **AI Automation Center** with a strict **Human-in-the-Loop Approval Center**:
 
 ---
 
+### FEATURE 3: SMARTSETTLE – AI PAYMENT NEGOTIATOR
+An AI-powered payment negotiation system connecting business owners and customers to agree on flexible milestone plans when full payment is impossible:
+
+```
+Customer Facing Portal (/negotiate/:id)       Business Owner Dashboard (/smartsettle)
+            │                                                 │
+            ├─► Views outstanding invoice                     ├─► Audits eligible invoices
+            ├─► Configures terms (parts & horizon)            ├─► Views payment reliability
+            ├─► AI analyzes invoice & customer history        ├─► Generates AI plans
+            ├─► Submits proposed milestone plan               │
+            │                  │                              │
+            │                  ▼                              ▼
+            │     ┌──────────────────────────────────────────────┐
+            │     │          Approval Workflow & Review          │
+            │     │    Business Owner: [Approve] [Edit] [Reject] │
+            │     └──────────────────────┬───────────────────────┘
+            │                            │
+            ▼                            ▼
+   Active Plan Activated        Agreements Ledger Updated
+            │                            │
+            ▼                            ▼
+   PayPal Sandbox Checkout      Real-Time Balance Decrement
+   (Smart Buttons per part) ──► (Fully Paid → Invoice Marked PAID)
+```
+
+1. **Business Owner SmartSettle Dashboard**:
+   - Audits all invoices eligible for negotiation with customer credit history.
+   - Reviews pending negotiation proposals submitted by customers.
+   - Generates AI-recommended plans with suitability scores and risk analysis.
+   - Approves, edits, or declines proposed arrangements.
+   - Tracks active agreements, milestone schedules, remaining balances, and recovered capital.
+
+2. **Customer Negotiation Portal** (`/negotiate/:id`):
+   - Secure customer-facing portal requiring no business login.
+   - Customer configures desired installments (2, 3, or 4 parts) and extension horizon (15 to 60 days).
+   - SmartSettle AI structures an initial deposit (35%) to demonstrate good faith and distributes remaining balances across bi-weekly milestones.
+   - Once approved by the business, customer can remit each installment directly via PayPal Sandbox Smart Buttons.
+   - Ledger updates balances automatically; when all installments are settled, the invoice is marked `PAID`.
+
+---
+
 ## ✨ Full Feature Matrix
 
 | Category | Capability | Details |
 |---|---|---|
+| 🤝 **SmartSettle** | AI Payment Negotiator | Installment plan generator, customer portal (`/negotiate/:id`), PayPal milestone checkout |
 | 🧠 **Multi-Agent** | 3 Specialized Agents + Orchestrator | Parallel execution, real database queries, unified synthesis |
 | ⚡ **Automation** | AI Automation Center | Overdue detection, payment staging, and automatic reconciliation |
 | 🛡️ **Security** | Approval Center | Mandatory human-in-the-loop authorization for sensitive operations |
@@ -167,9 +209,10 @@ An **AI Automation Center** with a strict **Human-in-the-Loop Approval Center**:
 │                        PAYPILOT SYSTEM                             │
 │                                                                    │
 │  ┌─────────────────────────┐    ┌──────────────────────────────┐  │
-│  │   REACT CLIENT (5173)   │    │   CUSTOMER CHECKOUT (/pay/)  │  │
-│  │  Multi-Agent Workspace  │    │   PayPal Smart Buttons SDK   │  │
-│  │  AI Automation Center   │    │   Real PayPal Sandbox Flow   │  │
+│  │   REACT CLIENT (5173)   │    │   CUSTOMER CHECKOUT & PORTAL │  │
+│  │  Multi-Agent Workspace  │    │   /pay/:id (Checkout)        │  │
+│  │  AI Automation Center   │    │   /negotiate/:id (SmartSettle│  │
+│  │  SmartSettle Dashboard  │    │   PayPal Smart Buttons SDK   │  │
 │  │  Approval Center UI     │    └──────────────┬───────────────┘  │
 │  └───────────┬─────────────┘                   │                  │
 │              │ REST API calls                   │                  │
@@ -181,11 +224,16 @@ An **AI Automation Center** with a strict **Human-in-the-Loop Approval Center**:
 │  │  │ • Finance Agent  │  │ • Payment Flow   │  │ • Invoicev2│  │  │
 │  │  │ • Collections Agt│  │ • Reconciliation │  │ • OAuth2   │  │  │
 │  │  │ • Risk Agent     │  │ • Approval Queue │  │   Token    │  │  │
-│  │  └────────┬─────────┘  └────────┬─────────┘  └──────┬─────┘  │  │
+│  │  ├──────────────────┤  ├──────────────────┤  └──────┬─────┘  │  │
+│  │  │ SmartSettle      │  │ Audit Logger     │         │        │  │
+│  │  │ • AI Negotiator  │  │ • Immutable Logs │         │        │  │
+│  │  │ • Milestone Flow │  │ • Fraud Guards   │         │        │  │
+│  │  └────────┬─────────┘  └────────┬─────────┘         │        │  │
 │  │           │                     │                   │        │  │
 │  │  ┌────────▼─────────────────────▼───────────────────▼─────┐  │  │
 │  │  │                  PRISMA ORM (SQLITE)                   │  │  │
 │  │  │  Users • Customers • Invoices • Transactions           │  │  │
+│  │  │  SmartSettleAgreements • SmartSettleInstallments       │  │  │
 │  │  │  AutomationWorkflows • AuditLogs • AiConversations      │  │  │
 │  │  └────────────────────────────────────────────────────────┘  │  │
 │  └───────────────────────────────┬──────────────────────────────┘  │
@@ -256,9 +304,9 @@ npm run dev:client
 
 ---
 
-## 🎯 6 Hackathon Demonstration Scenarios
+## 🎯 7 Hackathon Demonstration Scenarios
 
-Run the automated test suite anytime to verify all 6 scenarios end-to-end:
+Run the automated test suite anytime to verify all 7 scenarios end-to-end:
 ```bash
 ./test_scenarios.sh
 ```
@@ -280,7 +328,7 @@ Run the automated test suite anytime to verify all 6 scenarios end-to-end:
 - Prompt: *"Which customers have overdue payments?"*
 - Returns David Miller (2 invoices, $1,550 overdue) & Johnathan Vance (1 invoice, $850).
 
-### Scenario 5: Multi-Agent Financial Intelligence Council (NEW)
+### Scenario 5: Multi-Agent Financial Intelligence Council
 - Navigate to **Multi-Agent Intelligence**
 - Prompt: *"My business revenue is declining. Find out why and tell me what I should do."*
 - **Finance Agent** analyzes revenue velocity & forecasts 7d/30d cash inflows.
@@ -288,39 +336,40 @@ Run the automated test suite anytime to verify all 6 scenarios end-to-end:
 - **Risk Agent** audits transaction logs and checks for anomalies.
 - **Orchestrator** synthesizes findings into an executive diagnosis and prioritized action steps with parallel execution timeline.
 
-### Scenario 6: AI Automation Center & Approval Queue (NEW)
+### Scenario 6: AI Automation Center & Approval Queue
 - Navigate to **AI Automation Center**
-- Click **"Scan Financial Events"** → AI detects 3 overdue invoices and queues them in `PENDING_APPROVAL`.
+- Click **"Scan Financial Events"** → AI detects overdue invoices and queues them in `PENDING_APPROVAL`.
 - Review AI Diagnosis and prepared reminder draft.
 - Click **"Edit Content"** → adjust reminder text → click **"Save Changes & Authorize Dispatch"**.
 - Click **"Stage Payment Request"** → enter $500 for Sarah Jenkins → approve in queue → creates PayPal Order and checkout link.
 - Open **"Immutable Audit Log"** tab to inspect the timestamped audit records.
 
----
-
-## 💳 PayPal Sandbox Integration
-
-| PayPal Component | Implementation |
-|---|---|
-| **OAuth 2.0** | Server-side bearer token with automatic in-memory caching |
-| **Orders API v2** | `POST /v2/checkout/orders` with server-side capture verification |
-| **Invoicing API v2** | `POST /v2/invoicing/invoices` for drafts and direct dispatch |
-| **Smart Buttons** | `@paypal/react-paypal-js` on `/pay/:id` customer checkout page |
-| **Idempotency** | Prevents duplicate captures by checking existing transaction records |
-
-To use live PayPal Sandbox credentials:
-1. Log into [developer.paypal.com](https://developer.paypal.com/dashboard/applications/sandbox).
-2. Copy your **Sandbox Client ID** and **Secret**.
-3. Add to `server/.env`:
-   ```env
-   PAYPAL_CLIENT_ID=your_sandbox_client_id
-   PAYPAL_CLIENT_SECRET=your_sandbox_secret
-   ```
-4. Restart server and test connection in the **Settings** page.
+### Scenario 7: SmartSettle AI Payment Negotiator (NEW)
+1. Navigate to **SmartSettle** in the sidebar.
+2. Select an eligible invoice (e.g. David Miller $950 overdue).
+3. Click **"Copy Portal Link"** or click **"Generate AI Plan"**.
+4. Configure 3 milestones across 30 days → click **"Calculate AI Plan Proposal"**.
+5. SmartSettle AI structures a 35% deposit ($332.50) followed by two bi-weekly installments of $308.75.
+6. Stage the plan and click **"Approve & Activate Plan"**.
+7. Open `/negotiate/:invoiceId` in your browser as a customer.
+8. Customer views approved plan and clicks **"Pay with PayPal Sandbox"** on Milestone #1.
+9. Backend captures and verifies payment via PayPal API → updates agreement balance from $950 to $617.50 in real-time!
 
 ---
 
 ## 📡 REST API Endpoints
+
+### SmartSettle AI Payment Negotiator
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/api/smartsettle/public/:id` | Public customer negotiation portal data |
+| `POST` | `/api/smartsettle/public/propose` | AI plan generator for customer or business |
+| `POST` | `/api/smartsettle/public/request` | Submits proposed payment plan for approval |
+| `POST` | `/api/smartsettle/public/capture-installment` | PayPal checkout & capture for milestone installment |
+| `GET` | `/api/smartsettle/invoices` | Eligible invoices for negotiation (auth required) |
+| `GET` | `/api/smartsettle/dashboard` | Active agreements & recovered amounts (auth required) |
+| `POST` | `/api/smartsettle/:id/approve` | Business owner authorizes & activates agreement |
+| `POST` | `/api/smartsettle/:id/reject` | Business owner declines agreement |
 
 ### Multi-Agent Intelligence
 | Method | Endpoint | Description |
@@ -337,30 +386,6 @@ To use live PayPal Sandbox credentials:
 | `POST` | `/api/automation/:id/approve` | Authorizes & executes workflow |
 | `POST` | `/api/automation/:id/reject` | Declines workflow and logs to audit trail |
 | `GET` | `/api/automation/history` | Fetches workflow execution history & audit logs |
-
-### Core Financial APIs
-| Method | Endpoint | Description |
-|---|---|---|
-| `POST` | `/api/auth/demo-login` | 1-Click demo authentication |
-| `GET` | `/api/analytics/overview` | KPI dashboard data |
-| `POST` | `/api/ai/chat` | Single-agent chat & tool execution |
-| `POST` | `/api/payments/create-paypal-order` | Create PayPal order |
-| `POST` | `/api/payments/capture-paypal-order` | Capture & reconcile PayPal order |
-
----
-
-## 🗄️ Database Schema
-
-The SQLite schema uses 12 relational models managed via Prisma:
-- `User` & `BusinessProfile`
-- `Customer`
-- `Invoice` & `InvoiceItem`
-- `PaymentRequest`
-- `Transaction`
-- `AutomationWorkflow` *(NEW)*: Tracks type, approval status, payload, AI reasoning, and execution results
-- `AuditLog` *(NEW)*: Permanent ledger of all automated detections, authorizations, and outcomes
-- `AiConversation` & `AiMessage`
-- `ActivityLog`
 
 ---
 

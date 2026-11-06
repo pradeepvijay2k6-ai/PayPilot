@@ -25,6 +25,7 @@ model User {
   activityLogs    ActivityLog[]
   automationWorkflows AutomationWorkflow[]
   auditLogs       AuditLog[]
+  smartSettleAgreements SmartSettleAgreement[]
 }
 
 model BusinessProfile {
@@ -62,6 +63,7 @@ model Customer {
   transactions    Transaction[]
   paymentRequests PaymentRequest[]
   automationWorkflows AutomationWorkflow[]
+  smartSettleAgreements SmartSettleAgreement[]
 }
 
 model Invoice {
@@ -89,6 +91,7 @@ model Invoice {
   transactions     Transaction[]
   paymentRequests  PaymentRequest[]
   automationWorkflows AutomationWorkflow[]
+  smartSettleAgreements SmartSettleAgreement[]
 }
 
 model InvoiceItem {
@@ -212,4 +215,44 @@ model AuditLog {
   outcome     String              // SUCCESS, FAILURE, SKIPPED, PENDING
   createdAt   DateTime            @default(now())
 }
+
+model SmartSettleAgreement {
+  id                 String                   @id @default(uuid())
+  invoiceId          String
+  invoice            Invoice                  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  userId             String
+  user               User                     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId         String
+  customer           Customer                 @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status             String                   @default("PENDING_APPROVAL") // PENDING_APPROVAL, ACTIVE, COMPLETED, REJECTED, CANCELLED
+  originalAmount     Float
+  settledAmount      Float
+  paidAmount         Float                    @default(0)
+  remainingBalance   Float
+  installmentsCount  Int
+  customerNote       String?                  // reason for hardship / request
+  aiAnalysis         String?                  // AI rationale and risk assessment
+  businessNote       String?                  // comments from business owner
+  approvedAt         DateTime?
+  createdAt          DateTime                 @default(now())
+  updatedAt          DateTime                 @updatedAt
+  installments       SmartSettleInstallment[]
+}
+
+model SmartSettleInstallment {
+  id                String               @id @default(uuid())
+  agreementId       String
+  agreement         SmartSettleAgreement @relation(fields: [agreementId], references: [id], onDelete: Cascade)
+  installmentNumber Int
+  amount            Float
+  dueDate           DateTime
+  status            String               @default("PENDING") // PENDING, COMPLETED, OVERDUE, CANCELLED
+  paypalOrderId     String?
+  paypalCaptureId   String?
+  paidAt            DateTime?
+  transactionId     String?
+  createdAt         DateTime             @default(now())
+  updatedAt         DateTime             @updatedAt
+}
+
 

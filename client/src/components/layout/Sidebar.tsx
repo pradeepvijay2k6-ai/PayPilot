@@ -12,7 +12,8 @@ import {
   CreditCard,
   LogOut,
   Brain,
-  Zap
+  Zap,
+  Handshake
 } from 'lucide-react';
 import { User } from '../../types';
 
@@ -35,6 +36,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
     { id: 'multi-agent', label: 'Multi-Agent Intelligence', icon: Brain, badge: 'NEW' },
     { id: 'automation', label: 'AI Automation Center', icon: Zap, badge: 'AUTO' },
+    { id: 'smartsettle', label: 'SmartSettle', icon: Handshake, badge: 'SMART' },
     { id: 'ai-agent', label: 'AI Financial Agent', icon: Bot, badge: 'AI' },
     { id: 'invoices', label: 'Invoices', icon: FileText },
     { id: 'customers', label: 'Customers', icon: Users },

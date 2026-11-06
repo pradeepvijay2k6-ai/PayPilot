@@ -14,6 +14,8 @@ import { AiInsightsPage } from './pages/AiInsightsPage';
 import { SettingsPage } from './pages/SettingsPage';
 import { LoginPage } from './pages/LoginPage';
 import { PublicCheckoutPage } from './pages/PublicCheckoutPage';
+import { SmartSettlePage } from './pages/SmartSettlePage';
+import { CustomerNegotiatePage } from './pages/CustomerNegotiatePage';
 import { CreateInvoiceModal } from './components/invoices/CreateInvoiceModal';
 import { CreatePaymentRequestModal } from './components/payments/CreatePaymentRequestModal';
 import { apiClient } from './api/client';
@@ -30,6 +32,11 @@ export function App() {
   // If customer is viewing a checkout link (/pay/:id), render public checkout page
   if (window.location.pathname.startsWith('/pay/')) {
     return <PublicCheckoutPage />;
+  }
+
+  // If customer is viewing a negotiation link (/negotiate/:id or /smartsettle/:id), render customer negotiation portal
+  if (window.location.pathname.startsWith('/negotiate/') || window.location.pathname.startsWith('/smartsettle/')) {
+    return <CustomerNegotiatePage />;
   }
 
   // Load user session or auto-authenticate demo user
@@ -68,6 +75,8 @@ export function App() {
         return { title: 'Multi-Agent Financial Intelligence', subtitle: 'Finance, Collections, and Risk agents orchestrated in parallel' };
       case 'automation':
         return { title: 'AI Automation Center', subtitle: 'Autonomous event detection, human-in-the-loop approval, and audit trails' };
+      case 'smartsettle':
+        return { title: 'SmartSettle – AI Payment Negotiator', subtitle: 'Negotiate flexible installment schedules & capture PayPal milestone payments' };
       case 'ai-agent':
         return { title: 'PayPilot AI Financial Agent', subtitle: 'Autonomous natural language operations & PayPal dispatch' };
       case 'invoices':
@@ -138,6 +147,7 @@ export function App() {
           )}
           {currentTab === 'multi-agent' && <MultiAgentPage />}
           {currentTab === 'automation' && <AutomationCenterPage />}
+          {currentTab === 'smartsettle' && <SmartSettlePage />}
           {currentTab === 'ai-agent' && (
             <AiAgentPage
               onInvoiceCreated={() => setRefreshKey(prev => prev + 1)}

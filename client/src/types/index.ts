@@ -286,3 +286,69 @@ export interface AuditLogItem {
   createdAt: string;
 }
 
+export interface SmartSettleInstallmentItem {
+  id: string;
+  installmentNumber: number;
+  amount: number;
+  dueDate: string;
+  status: 'PENDING' | 'COMPLETED' | 'OVERDUE' | 'CANCELLED';
+  paidAt?: string;
+  paypalOrderId?: string;
+}
+
+export interface SmartSettleAgreementItem {
+  id: string;
+  invoiceId: string;
+  invoiceNumber: string;
+  customerName: string;
+  company?: string;
+  status: 'PENDING_APPROVAL' | 'ACTIVE' | 'COMPLETED' | 'REJECTED' | 'CANCELLED';
+  originalAmount: number;
+  settledAmount: number;
+  paidAmount: number;
+  remainingBalance: number;
+  installmentsCount: number;
+  customerNote?: string;
+  aiAnalysis?: string;
+  businessNote?: string;
+  approvedAt?: string;
+  createdAt: string;
+  installments: SmartSettleInstallmentItem[];
+}
+
+export interface SmartSettleEligibleInvoice {
+  id: string;
+  invoiceNumber: string;
+  total: number;
+  dueDate: string;
+  status: string;
+  daysOverdue: number;
+  customer: {
+    id: string;
+    name: string;
+    company?: string;
+    email: string;
+    totalSettledPast: number;
+    ordersCount: number;
+  };
+  hasActiveAgreement: boolean;
+  activeAgreementId?: string;
+  agreementStatus?: string;
+}
+
+export interface SmartSettleDashboardData {
+  summary: {
+    activeAgreementsCount: number;
+    pendingApprovalCount: number;
+    completedAgreementsCount: number;
+    totalUnderAgreement: number;
+    totalRemaining: number;
+    totalRecovered: number;
+    completedInstallmentsCount: number;
+    upcomingInstallmentsCount: number;
+    overdueInstallmentsCount: number;
+  };
+  agreements: SmartSettleAgreementItem[];
+}
+
+

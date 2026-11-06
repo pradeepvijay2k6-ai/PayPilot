@@ -11,6 +11,7 @@ import aiRoutes from './routes/ai.routes';
 import settingsRoutes from './routes/settings.routes';
 import multiAgentRoutes from './routes/multi-agent.routes';
 import automationRoutes from './routes/automation.routes';
+import smartSettleRoutes from './routes/smartsettle.routes';
 
 const app = express();
 
@@ -49,6 +50,7 @@ app.use('/api/ai', aiRoutes);
 app.use('/api/settings', settingsRoutes);
 app.use('/api/multi-agent', multiAgentRoutes);
 app.use('/api/automation', automationRoutes);
+app.use('/api/smartsettle', smartSettleRoutes);
 
 // Global error handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

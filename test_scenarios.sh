@@ -105,5 +105,57 @@ AUDIT_RESP=$(curl -s -H "Authorization: Bearer $TOKEN" http://localhost:5001/api
 echo "$AUDIT_RESP" | grep '"action":' | grep '"outcome":"SUCCESS"'
 echo "✅ Scenario 6c: Immutable audit trail verified."
 
+# 10. SCENARIO 7: SmartSettle AI Payment Negotiator (Feature 3)
+echo "10a. Testing SmartSettle Eligible Invoices..."
+SS_INVS=$(curl -s -H "Authorization: Bearer $TOKEN" http://localhost:5001/api/smartsettle/invoices)
+echo "$SS_INVS" | grep '"invoices":'
+echo "✅ Scenario 7a: Retrieved eligible invoices for negotiation."
+
+INV_ID=$(echo "$SS_INVS" | grep -o '"id":"[^"]*' | head -n 1 | cut -d'"' -f4)
+
+echo "10b. Testing SmartSettle AI Plan Generation..."
+PLAN_RESP=$(curl -s -X POST http://localhost:5001/api/smartsettle/public/propose \
+  -H "Content-Type: application/json" \
+  -d '{"invoiceId":"'$INV_ID'","requestedInstallments":3,"requestedExtensionDays":30,"hardshipReason":"Cash flow delay"}')
+echo "$PLAN_RESP" | grep '"installmentsCount":3' | grep '"suitabilityScore":'
+echo "✅ Scenario 7b: AI Negotiator generated 3-milestone payment plan."
+
+echo "10c. Testing SmartSettle Proposal Submission & Approval..."
+PLAN_DATA=$(echo "$PLAN_RESP" | node -e '
+let d="";
+process.stdin.on("data", c => d += c);
+process.stdin.on("end", () => {
+  const j = JSON.parse(d);
+  process.stdout.write(JSON.stringify(j.proposal));
+});')
+
+SUBMIT_RESP=$(curl -s -X POST http://localhost:5001/api/smartsettle/public/request \
+  -H "Content-Type: application/json" \
+  -d '{"invoiceId":"'$INV_ID'","customerNote":"Need 30 days extension","plan":'"$PLAN_DATA"'}')
+echo "$SUBMIT_RESP" | grep '"PENDING_APPROVAL"'
+AGR_ID=$(echo "$SUBMIT_RESP" | grep -o '"id":"[^"]*' | head -n 1 | cut -d'"' -f4)
+
+APPROVE_AGR=$(curl -s -X POST http://localhost:5001/api/smartsettle/$AGR_ID/approve \
+  -H "Authorization: Bearer $TOKEN" \
+  -H "Content-Type: application/json" \
+  -d '{"businessNote":"Approved 3-part plan"}')
+echo "$APPROVE_AGR" | grep '"status":"ACTIVE"'
+echo "✅ Scenario 7c: Business owner approved and activated SmartSettle agreement."
+
+echo "10d. Testing Installment Capture via PayPal Sandbox..."
+INST_ID=$(echo "$APPROVE_AGR" | node -e '
+let d="";
+process.stdin.on("data", c => d += c);
+process.stdin.on("end", () => {
+  const j = JSON.parse(d);
+  process.stdout.write(j.agreement.installments[0].id);
+});')
+
+CAP_RESP=$(curl -s -X POST http://localhost:5001/api/smartsettle/public/capture-installment \
+  -H "Content-Type: application/json" \
+  -d '{"installmentId":"'$INST_ID'","paypalOrderId":"ORD-HACKATHON-TEST"}')
+echo "$CAP_RESP" | grep '"success":true' | grep '"COMPLETED"'
+echo "✅ Scenario 7d: Installment payment captured and balance updated."
+
 echo ""
-echo "🎉 ALL 6 HACKATHON SCENARIOS FULLY VERIFIED AND PASSING!"
+echo "🎉 ALL 7 HACKATHON SCENARIOS FULLY VERIFIED AND PASSING!"
