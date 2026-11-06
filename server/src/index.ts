@@ -9,6 +9,8 @@ import paymentsRoutes from './routes/payments.routes';
 import analyticsRoutes from './routes/analytics.routes';
 import aiRoutes from './routes/ai.routes';
 import settingsRoutes from './routes/settings.routes';
+import multiAgentRoutes from './routes/multi-agent.routes';
+import automationRoutes from './routes/automation.routes';
 
 const app = express();
 
@@ -45,6 +47,8 @@ app.use('/api/payments', paymentsRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/settings', settingsRoutes);
+app.use('/api/multi-agent', multiAgentRoutes);
+app.use('/api/automation', automationRoutes);
 
 // Global error handler
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {

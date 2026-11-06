@@ -3,6 +3,8 @@ import { Sidebar } from './components/layout/Sidebar';
 import { Header } from './components/layout/Header';
 import { FloatingAiWidget } from './components/layout/FloatingAiWidget';
 import { Overview } from './pages/Overview';
+import { MultiAgentPage } from './pages/MultiAgentPage';
+import { AutomationCenterPage } from './pages/AutomationCenterPage';
 import { AiAgentPage } from './pages/AiAgentPage';
 import { InvoicesPage } from './pages/InvoicesPage';
 import { CustomersPage } from './pages/CustomersPage';
@@ -62,6 +64,10 @@ export function App() {
     switch (currentTab) {
       case 'overview':
         return { title: 'Financial Operations Overview', subtitle: 'Live cash-flow, settled PayPal transactions, and debtor metrics' };
+      case 'multi-agent':
+        return { title: 'Multi-Agent Financial Intelligence', subtitle: 'Finance, Collections, and Risk agents orchestrated in parallel' };
+      case 'automation':
+        return { title: 'AI Automation Center', subtitle: 'Autonomous event detection, human-in-the-loop approval, and audit trails' };
       case 'ai-agent':
         return { title: 'PayPilot AI Financial Agent', subtitle: 'Autonomous natural language operations & PayPal dispatch' };
       case 'invoices':
@@ -130,6 +136,8 @@ export function App() {
               onOpenPaymentRequest={() => setPaymentRequestOpen(true)}
             />
           )}
+          {currentTab === 'multi-agent' && <MultiAgentPage />}
+          {currentTab === 'automation' && <AutomationCenterPage />}
           {currentTab === 'ai-agent' && (
             <AiAgentPage
               onInvoiceCreated={() => setRefreshKey(prev => prev + 1)}

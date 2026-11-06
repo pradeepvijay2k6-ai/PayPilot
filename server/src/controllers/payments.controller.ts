@@ -290,6 +290,24 @@ export const capturePayPalOrder = async (req: Request, res: Response) => {
       }
     });
 
+    if (userId) {
+      await prisma.auditLog.create({
+        data: {
+          userId,
+          action: invoiceId ? 'PAYPAL_PAYMENT_RECONCILED' : 'PAYPAL_PAYMENT_CAPTURED',
+          entityType: 'TRANSACTION',
+          entityId: transaction.id,
+          outcome: 'SUCCESS',
+          detailsJson: JSON.stringify({
+            paypalOrderId: orderId,
+            amount: captureResult.amount,
+            invoiceId,
+            payer: captureResult.payer?.email_address
+          })
+        }
+      });
+    }
+
     res.json({
       message: 'Payment successfully captured and verified through PayPal API',
       transaction

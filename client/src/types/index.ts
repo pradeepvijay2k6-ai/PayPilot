@@ -156,3 +156,133 @@ export interface AiMessageItem {
   };
   createdAt: string;
 }
+
+export interface FinanceAgentFinding {
+  agent: 'Finance Agent';
+  status: 'OPTIMAL' | 'WARNING' | 'ALERT';
+  summary: string;
+  metrics: {
+    totalRevenue: number;
+    revenueLast30Days: number;
+    monthlyGrowthRate: number;
+    forecastNext7Days: number;
+    forecastNext30Days: number;
+    cashFlowHealth: 'SURPLUS' | 'BALANCED' | 'DEFICIT_RISK';
+    burnOrOverdueRatio: number;
+  };
+  trends: string[];
+  recommendations: string[];
+  monthComparison: {
+    currentPeriodRevenue: number;
+    priorPeriodRevenue: number;
+    percentageChange: number;
+  };
+}
+
+export interface CollectionsAgentFinding {
+  agent: 'Collections Agent';
+  status: 'OPTIMAL' | 'WARNING' | 'ALERT';
+  summary: string;
+  metrics: {
+    totalOverdueAmount: number;
+    overdueInvoicesCount: number;
+    delinquentCustomersCount: number;
+    averageRecoveryDays: number;
+  };
+  prioritizedCustomers: Array<{
+    customerId: string;
+    customerName: string;
+    company: string;
+    overdueInvoicesCount: number;
+    totalOverdueAmount: number;
+    avgDelayDays: number;
+    reliabilityScore: number;
+    urgency: 'HIGH' | 'MEDIUM' | 'LOW';
+    recommendedContactSequence: number;
+    draftReminder: {
+      subject: string;
+      body: string;
+      targetInvoiceNumber: string;
+      targetAmount: number;
+    };
+  }>;
+  recoveryStrategy: string[];
+}
+
+export interface RiskAgentFinding {
+  agent: 'Risk Agent';
+  status: 'OPTIMAL' | 'WARNING' | 'ALERT';
+  summary: string;
+  metrics: {
+    totalTransactionsAnalyzed: number;
+    flaggedCount: number;
+    potentialDiscrepancyAmount: number;
+    riskPosture: 'LOW_RISK' | 'MONITORING_REQUIRED' | 'ACTION_REQUIRED';
+  };
+  flaggedTransactions: Array<{
+    transactionId?: string;
+    paypalOrderId?: string;
+    amount: number;
+    customerName: string;
+    riskLevel: 'ELEVATED' | 'MODERATE' | 'LOW';
+    category: string;
+    suspicionReason: string;
+    recommendedAction: string;
+    transactionDate?: string;
+  }>;
+  riskObservations: string[];
+}
+
+export interface MultiAgentResponse {
+  conversationId?: string;
+  prompt: string;
+  agentsInvolved: Array<'Finance Agent' | 'Collections Agent' | 'Risk Agent'>;
+  agentFindings: {
+    finance?: FinanceAgentFinding;
+    collections?: CollectionsAgentFinding;
+    risk?: RiskAgentFinding;
+  };
+  combinedAnalysis: string;
+  recommendedActions: string[];
+  executionTimeline: Array<{
+    agent: string;
+    durationMs: number;
+    status: 'OPTIMAL' | 'WARNING' | 'ALERT';
+    summary: string;
+  }>;
+}
+
+export interface AgentStatusInfo {
+  name: string;
+  role: string;
+  status: string;
+  dataPoints: string;
+}
+
+export interface AutomationWorkflowItem {
+  id: string;
+  type: 'OVERDUE_REMINDER' | 'PAYMENT_PROCESSING' | 'RECONCILIATION';
+  status: 'PENDING_APPROVAL' | 'APPROVED' | 'REJECTED' | 'COMPLETED' | 'FAILED';
+  title: string;
+  description: string;
+  aiReasoning?: string;
+  customerName?: string;
+  company?: string;
+  invoiceNumber?: string;
+  amount?: number;
+  createdAt: string;
+  updatedAt?: string;
+  context: any;
+  result?: any;
+}
+
+export interface AuditLogItem {
+  id: string;
+  action: string;
+  entityType: string;
+  entityId?: string;
+  outcome: 'SUCCESS' | 'FAILURE' | 'SKIPPED' | 'PENDING';
+  details?: any;
+  createdAt: string;
+}
+

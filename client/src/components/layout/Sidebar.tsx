@@ -10,7 +10,9 @@ import {
   Settings,
   ShieldCheck,
   CreditCard,
-  LogOut
+  LogOut,
+  Brain,
+  Zap
 } from 'lucide-react';
 import { User } from '../../types';
 
@@ -31,6 +33,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
 }) => {
   const navItems = [
     { id: 'overview', label: 'Overview', icon: LayoutDashboard },
+    { id: 'multi-agent', label: 'Multi-Agent Intelligence', icon: Brain, badge: 'NEW' },
+    { id: 'automation', label: 'AI Automation Center', icon: Zap, badge: 'AUTO' },
     { id: 'ai-agent', label: 'AI Financial Agent', icon: Bot, badge: 'AI' },
     { id: 'invoices', label: 'Invoices', icon: FileText },
     { id: 'customers', label: 'Customers', icon: Users },

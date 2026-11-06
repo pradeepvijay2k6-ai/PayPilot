@@ -23,6 +23,8 @@ model User {
   paymentRequests PaymentRequest[]
   aiConversations AiConversation[]
   activityLogs    ActivityLog[]
+  automationWorkflows AutomationWorkflow[]
+  auditLogs       AuditLog[]
 }
 
 model BusinessProfile {
@@ -59,6 +61,7 @@ model Customer {
   invoices        Invoice[]
   transactions    Transaction[]
   paymentRequests PaymentRequest[]
+  automationWorkflows AutomationWorkflow[]
 }
 
 model Invoice {
@@ -85,6 +88,7 @@ model Invoice {
   items            InvoiceItem[]
   transactions     Transaction[]
   paymentRequests  PaymentRequest[]
+  automationWorkflows AutomationWorkflow[]
 }
 
 model InvoiceItem {
@@ -174,3 +178,38 @@ model ActivityLog {
   detailsJson String?
   createdAt   DateTime @default(now())
 }
+
+model AutomationWorkflow {
+  id          String     @id @default(uuid())
+  userId      String
+  user        User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type        String     // OVERDUE_REMINDER, PAYMENT_PROCESSING, RECONCILIATION
+  status      String     @default("PENDING_APPROVAL") // PENDING_APPROVAL, APPROVED, REJECTED, COMPLETED, FAILED
+  title       String
+  description String
+  contextJson String     // JSON payload
+  resultJson  String?
+  aiReasoning String?
+  invoiceId   String?
+  invoice     Invoice?   @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  customerId  String?
+  customer    Customer?  @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  auditLogs   AuditLog[]
+}
+
+model AuditLog {
+  id          String              @id @default(uuid())
+  userId      String
+  user        User                @relation(fields: [userId], references: [id], onDelete: Cascade)
+  workflowId  String?
+  workflow    AutomationWorkflow? @relation(fields: [workflowId], references: [id], onDelete: SetNull)
+  action      String              // DETECTED, APPROVED, REJECTED, EDITED, EXECUTED, RECONCILED
+  entityType  String              // WORKFLOW, INVOICE, PAYMENT, TRANSACTION
+  entityId    String?
+  detailsJson String?
+  outcome     String              // SUCCESS, FAILURE, SKIPPED, PENDING
+  createdAt   DateTime            @default(now())
+}
+
