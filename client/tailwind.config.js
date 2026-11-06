@@ -9,13 +9,13 @@ export default {
     extend: {
       colors: {
         dark: {
-          950: '#070A12',
-          900: '#0B101E',
-          850: '#0F172A',
-          800: '#141E34',
-          750: '#1A2642',
-          700: '#223254',
-          600: '#334155',
+          950: 'var(--color-dark-950, #070A12)',
+          900: 'var(--color-dark-900, #0B101E)',
+          850: 'var(--color-dark-850, #0F172A)',
+          800: 'var(--color-dark-800, #141E34)',
+          750: 'var(--color-dark-750, #1A2642)',
+          700: 'var(--color-dark-700, #223254)',
+          600: 'var(--color-dark-600, #334155)',
         },
         brand: {
           50: '#eff6ff',

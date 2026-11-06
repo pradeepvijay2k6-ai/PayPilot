@@ -18,16 +18,33 @@ import { SmartSettlePage } from './pages/SmartSettlePage';
 import { CustomerNegotiatePage } from './pages/CustomerNegotiatePage';
 import { CreateInvoiceModal } from './components/invoices/CreateInvoiceModal';
 import { CreatePaymentRequestModal } from './components/payments/CreatePaymentRequestModal';
+import { PaymentQrModal } from './components/common/PaymentQrModal';
+import { CommandPaletteModal } from './components/common/CommandPaletteModal';
+import { ThemeProvider } from './context/ThemeContext';
 import { apiClient } from './api/client';
 import { User } from './types';
 
-export function App() {
+function AppContent() {
   const [currentTab, setCurrentTab] = useState('overview');
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
   const [createInvoiceOpen, setCreateInvoiceOpen] = useState(false);
   const [paymentRequestOpen, setPaymentRequestOpen] = useState(false);
+  const [qrPayOpen, setQrPayOpen] = useState(false);
+  const [commandPaletteOpen, setCommandPaletteOpen] = useState(false);
   const [refreshKey, setRefreshKey] = useState(0);
+
+  // Global keyboard shortcut for Command Palette (Ctrl+K or Cmd+K)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+        e.preventDefault();
+        setCommandPaletteOpen((prev) => !prev);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, []);
 
   // If customer is viewing a checkout link (/pay/:id), render public checkout page
   if (window.location.pathname.startsWith('/pay/')) {
@@ -114,13 +131,14 @@ export function App() {
   const { title, subtitle } = getPageTitle();
 
   return (
-    <div className="flex h-screen bg-dark-950 text-slate-100 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="flex h-screen bg-dark-950 text-slate-100 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif] transition-colors">
       {/* Sidebar */}
       <Sidebar
         currentTab={currentTab}
         onSelectTab={(tab) => setCurrentTab(tab)}
         user={user}
         onLogout={handleLogout}
+        onOpenQrPay={() => setQrPayOpen(true)}
         paypalConnected={true}
       />
 
@@ -133,6 +151,8 @@ export function App() {
           onOpenCreateInvoice={() => setCreateInvoiceOpen(true)}
           onOpenPaymentRequest={() => setPaymentRequestOpen(true)}
           onOpenAiChat={() => setCurrentTab('ai-agent')}
+          onOpenQrPay={() => setQrPayOpen(true)}
+          onOpenCommandPalette={() => setCommandPaletteOpen(true)}
           onDataRefreshed={() => setRefreshKey(prev => prev + 1)}
         />
 
@@ -185,7 +205,29 @@ export function App() {
         onClose={() => setPaymentRequestOpen(false)}
         onRequestCreated={() => setRefreshKey(prev => prev + 1)}
       />
+
+      <PaymentQrModal
+        isOpen={qrPayOpen}
+        onClose={() => setQrPayOpen(false)}
+      />
+
+      <CommandPaletteModal
+        isOpen={commandPaletteOpen}
+        onClose={() => setCommandPaletteOpen(false)}
+        onNavigate={(tab) => setCurrentTab(tab)}
+        onOpenCreateInvoice={() => setCreateInvoiceOpen(true)}
+        onOpenPaymentRequest={() => setPaymentRequestOpen(true)}
+        onOpenQrPay={() => setQrPayOpen(true)}
+      />
     </div>
+  );
+}
+
+export function App() {
+  return (
+    <ThemeProvider>
+      <AppContent />
+    </ThemeProvider>
   );
 }
 

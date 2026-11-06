@@ -12,15 +12,21 @@ import {
   Building,
   Key,
   Info,
-  Loader2
+  Loader2,
+  Sun,
+  Moon,
+  Laptop
 } from 'lucide-react';
 import { apiClient } from '../api/client';
+import { useTheme, Theme } from '../context/ThemeContext';
 
 export const SettingsPage: React.FC = () => {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [testingPayPal, setTestingPayPal] = useState(false);
   const [testResult, setTestResult] = useState<{ connected: boolean; message: string } | null>(null);
+
+  const { theme, setTheme, resolvedTheme } = useTheme();
 
   // Form states
   const [businessName, setBusinessName] = useState('');
@@ -100,16 +106,91 @@ export const SettingsPage: React.FC = () => {
   };
 
   return (
-    <div className="p-8 max-w-5xl mx-auto space-y-8">
+    <div className="p-4 md:p-8 max-w-5xl mx-auto space-y-8">
       {/* Header */}
       <div>
         <h2 className="text-xl font-bold text-white tracking-tight">System & Account Settings</h2>
         <p className="text-xs text-slate-400 mt-0.5">
-          Configure PayPal Developer Sandbox credentials, AI engine parameters, and business identity.
+          Configure interface theme, PayPal Developer Sandbox credentials, AI engine parameters, and business identity.
         </p>
       </div>
 
       <form onSubmit={handleSave} className="space-y-6">
+        {/* Section 0: Appearance & Theme Mode */}
+        <div className="glass-card p-6 rounded-2xl border border-slate-800/80 shadow-xs space-y-4">
+          <div className="flex items-center gap-2.5 border-b border-slate-800 pb-3">
+            <div className="w-8 h-8 rounded-lg bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center font-bold">
+              {resolvedTheme === 'dark' ? <Moon className="w-4 h-4" /> : <Sun className="w-4 h-4" />}
+            </div>
+            <div>
+              <h3 className="text-sm font-semibold text-white">Appearance & Theme Mode</h3>
+              <p className="text-[11px] text-slate-400">Customize visual contrast and application display style</p>
+            </div>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+            {/* Dark Theme Option */}
+            <button
+              type="button"
+              onClick={() => setTheme('dark')}
+              className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between gap-3 ${
+                theme === 'dark'
+                  ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50'
+                  : 'border-slate-800 bg-dark-950/60 hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <Moon className={`w-5 h-5 ${theme === 'dark' ? 'text-brand-400' : 'text-slate-400'}`} />
+                {theme === 'dark' && <CheckCircle2 className="w-4 h-4 text-brand-400" />}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Dark Mode</p>
+                <p className="text-[10px] text-slate-400">Cyberpunk high-contrast fintech aesthetic</p>
+              </div>
+            </button>
+
+            {/* Light Theme Option */}
+            <button
+              type="button"
+              onClick={() => setTheme('light')}
+              className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between gap-3 ${
+                theme === 'light'
+                  ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50'
+                  : 'border-slate-800 bg-dark-950/60 hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <Sun className={`w-5 h-5 ${theme === 'light' ? 'text-amber-400' : 'text-slate-400'}`} />
+                {theme === 'light' && <CheckCircle2 className="w-4 h-4 text-brand-400" />}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">Light Mode</p>
+                <p className="text-[10px] text-slate-400">Crisp, clean Stripe & Mercury-inspired palette</p>
+              </div>
+            </button>
+
+            {/* System Auto Option */}
+            <button
+              type="button"
+              onClick={() => setTheme('system')}
+              className={`p-4 rounded-xl border text-left transition-all flex flex-col justify-between gap-3 ${
+                theme === 'system'
+                  ? 'border-brand-500 bg-brand-500/10 ring-1 ring-brand-500/50'
+                  : 'border-slate-800 bg-dark-950/60 hover:border-slate-700'
+              }`}
+            >
+              <div className="flex items-center justify-between">
+                <Laptop className={`w-5 h-5 ${theme === 'system' ? 'text-indigo-400' : 'text-slate-400'}`} />
+                {theme === 'system' && <CheckCircle2 className="w-4 h-4 text-brand-400" />}
+              </div>
+              <div>
+                <p className="text-xs font-bold text-white">System Preference</p>
+                <p className="text-[10px] text-slate-400">Automatically sync with operating system</p>
+              </div>
+            </button>
+          </div>
+        </div>
+
         {/* Section 1: PayPal Developer Sandbox Configuration */}
         <div className="glass-card p-6 rounded-2xl border border-slate-800/80 shadow-xs space-y-4">
           <div className="flex justify-between items-start border-b border-slate-800 pb-3">
@@ -159,7 +240,7 @@ export const SettingsPage: React.FC = () => {
                 placeholder="Enter PayPal Sandbox Client ID..."
                 value={paypalClientId}
                 onChange={(e) => setPaypalClientId(e.target.value)}
-                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 placeholder-slate-600 focus:border-brand-500 outline-none"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 placeholder-slate-600 focus:border-brand-500 outline-hidden"
               />
             </div>
 
@@ -172,7 +253,7 @@ export const SettingsPage: React.FC = () => {
                 placeholder="Enter PayPal Sandbox Client Secret..."
                 value={paypalClientSecret}
                 onChange={(e) => setPaypalClientSecret(e.target.value)}
-                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 placeholder-slate-600 focus:border-brand-500 outline-none"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs font-mono text-slate-200 placeholder-slate-600 focus:border-brand-500 outline-hidden"
               />
             </div>
           </div>
@@ -238,7 +319,7 @@ export const SettingsPage: React.FC = () => {
             <select
               value={aiProvider}
               onChange={(e) => setAiProvider(e.target.value)}
-              className="w-full bg-dark-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 outline-none focus:border-brand-500"
+              className="w-full bg-dark-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 outline-hidden focus:border-brand-500"
             >
               <option value="auto">Auto-detect (Gemini / OpenAI / Smart Fallback Engine)</option>
               <option value="gemini">Google Gemini 1.5 Flash</option>
@@ -266,7 +347,7 @@ export const SettingsPage: React.FC = () => {
                 type="text"
                 value={businessName}
                 onChange={(e) => setBusinessName(e.target.value)}
-                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-slate-200 outline-none focus:border-brand-500"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-slate-200 outline-hidden focus:border-brand-500"
               />
             </div>
             <div>
@@ -275,7 +356,7 @@ export const SettingsPage: React.FC = () => {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-slate-200 outline-none focus:border-brand-500"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-slate-200 outline-hidden focus:border-brand-500"
               />
             </div>
             <div>
@@ -284,7 +365,7 @@ export const SettingsPage: React.FC = () => {
                 type="text"
                 value={taxId}
                 onChange={(e) => setTaxId(e.target.value)}
-                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-slate-200 outline-none focus:border-brand-500"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-slate-200 outline-hidden focus:border-brand-500"
               />
             </div>
             <div>
@@ -292,7 +373,7 @@ export const SettingsPage: React.FC = () => {
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl font-medium text-slate-200 outline-none focus:border-brand-500"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl font-medium text-slate-200 outline-hidden focus:border-brand-500"
               >
                 <option value="USD">USD ($) - US Dollar</option>
                 <option value="EUR">EUR (€) - Euro</option>

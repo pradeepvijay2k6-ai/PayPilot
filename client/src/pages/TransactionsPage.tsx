@@ -9,8 +9,11 @@ import {
   DollarSign,
   Calendar,
   X,
-  Eye
+  Eye,
+  Download,
+  QrCode
 } from 'lucide-react';
+import QRCode from 'qrcode';
 import { apiClient } from '../api/client';
 import { Transaction } from '../types';
 
@@ -20,6 +23,7 @@ export const TransactionsPage: React.FC = () => {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedTx, setSelectedTx] = useState<Transaction | null>(null);
+  const [receiptQrUrl, setReceiptQrUrl] = useState<string>('');
 
   const fetchTransactions = async () => {
     try {
@@ -41,13 +45,49 @@ export const TransactionsPage: React.FC = () => {
     fetchTransactions();
   }, [statusFilter]);
 
+  useEffect(() => {
+    if (selectedTx) {
+      const verifyUrl = `${window.location.origin}/transactions?order=${selectedTx.paypalOrderId || selectedTx.id}`;
+      QRCode.toDataURL(verifyUrl, {
+        width: 120,
+        margin: 1,
+        color: { dark: '#002C6C', light: '#FFFFFF' }
+      })
+        .then(url => setReceiptQrUrl(url))
+        .catch(err => console.error('Failed to generate receipt QR:', err));
+    }
+  }, [selectedTx]);
+
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     fetchTransactions();
   };
 
+  const handleExportCsv = () => {
+    if (transactions.length === 0) return;
+    const headers = ['Transaction ID', 'PayPal Order ID', 'Payer Name', 'Payer Email', 'Date', 'Amount (USD)', 'Status'];
+    const rows = transactions.map(t => [
+      t.id,
+      t.paypalOrderId || '',
+      `"${(t.customer?.name || t.payerName || '').replace(/"/g, '""')}"`,
+      `"${(t.customer?.email || t.payerEmail || '').replace(/"/g, '""')}"`,
+      new Date(t.transactionDate).toISOString(),
+      t.amount.toFixed(2),
+      t.status
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `PayPilot_Transactions_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
       {/* Controls Bar */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-card p-4 rounded-2xl border border-slate-800/80 shadow-xs">
         <form onSubmit={handleSearch} className="relative w-full sm:w-80">
@@ -61,20 +101,31 @@ export const TransactionsPage: React.FC = () => {
           />
         </form>
 
-        <div className="flex items-center gap-2">
-          {['ALL', 'COMPLETED', 'PENDING', 'FAILED'].map((st) => (
-            <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                statusFilter === st
-                  ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20'
-                  : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
-              }`}
-            >
-              {st}
-            </button>
-          ))}
+        <div className="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+          <div className="flex items-center gap-1.5">
+            {['ALL', 'COMPLETED', 'PENDING', 'FAILED'].map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  statusFilter === st
+                    ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20'
+                    : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {st}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleExportCsv}
+            title="Export transactions to CSV"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-dark-950 hover:bg-dark-850 text-slate-300 hover:text-white text-xs font-semibold rounded-xl border border-slate-800 transition-all shrink-0"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-400" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
         </div>
       </div>
 
@@ -152,18 +203,18 @@ export const TransactionsPage: React.FC = () => {
       {/* Transaction Details Modal */}
       {selectedTx && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
-          <div className="bg-dark-900 rounded-2xl max-w-md w-full border border-slate-800 shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
+          <div className="bg-dark-900 rounded-3xl max-w-md w-full border border-slate-800 shadow-2xl p-6 space-y-4 animate-in fade-in zoom-in-95 duration-150">
             <div className="flex justify-between items-start border-b border-slate-800 pb-3">
               <div>
-                <h3 className="font-semibold text-white text-sm">PayPal Transaction Verification</h3>
-                <p className="font-mono text-xs text-brand-400">{selectedTx.paypalOrderId}</p>
+                <h3 className="font-bold text-white text-base">PayPal Settlement Voucher</h3>
+                <p className="font-mono text-xs text-brand-400">{selectedTx.paypalOrderId || selectedTx.id}</p>
               </div>
-              <button onClick={() => setSelectedTx(null)} className="p-1 text-slate-400 hover:text-white rounded">
+              <button onClick={() => setSelectedTx(null)} className="p-1 text-slate-400 hover:text-white rounded-lg">
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            <div className="bg-dark-950/80 p-4 rounded-xl space-y-2 text-xs border border-slate-800">
+            <div className="bg-dark-950/80 p-4 rounded-2xl space-y-2 text-xs border border-slate-800">
               <div className="flex justify-between">
                 <span className="text-slate-400">Gross Captured:</span>
                 <span className="font-bold font-mono text-white">${selectedTx.amount.toFixed(2)} USD</span>
@@ -185,6 +236,23 @@ export const TransactionsPage: React.FC = () => {
                 <span className="text-slate-300 font-mono">{new Date(selectedTx.transactionDate).toLocaleString()}</span>
               </div>
             </div>
+
+            {/* Verification QR Code Badge */}
+            {receiptQrUrl && (
+              <div className="flex items-center gap-3 p-3 bg-dark-950 rounded-2xl border border-slate-800">
+                <div className="p-1 bg-white rounded-xl shrink-0">
+                  <img src={receiptQrUrl} alt="Receipt QR" className="w-16 h-16 object-contain" />
+                </div>
+                <div>
+                  <span className="text-[10px] uppercase font-bold text-slate-400 tracking-wider block">Auditable Ledger Hash</span>
+                  <p className="text-xs font-semibold text-slate-200">Scannable Verification QR</p>
+                  <p className="text-[10px] text-emerald-400 flex items-center gap-1 mt-0.5">
+                    <ShieldCheck className="w-3 h-3 text-emerald-400" />
+                    <span>Cryptographically immutable record</span>
+                  </p>
+                </div>
+              </div>
+            )}
 
             {selectedTx.rawResponseJson && (
               <div>

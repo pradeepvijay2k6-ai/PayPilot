@@ -11,11 +11,14 @@ import {
   Eye, 
   Calendar,
   DollarSign,
-  CreditCard
+  CreditCard,
+  QrCode,
+  Download
 } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { Invoice } from '../types';
 import { InvoicePreviewModal } from '../components/invoices/InvoicePreviewModal';
+import { PaymentQrModal } from '../components/common/PaymentQrModal';
 
 interface InvoicesPageProps {
   onOpenCreateInvoice: () => void;
@@ -28,6 +31,8 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
   const [statusFilter, setStatusFilter] = useState('ALL');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
   const [previewOpen, setPreviewOpen] = useState(false);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+  const [qrInvoice, setQrInvoice] = useState<Invoice | null>(null);
 
   const fetchInvoices = async () => {
     try {
@@ -59,6 +64,11 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
     setPreviewOpen(true);
   };
 
+  const handleOpenQr = (inv: Invoice) => {
+    setQrInvoice(inv);
+    setQrModalOpen(true);
+  };
+
   const handleDelete = async (id: string) => {
     if (!confirm('Are you sure you want to delete this invoice?')) return;
     try {
@@ -69,13 +79,37 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
     }
   };
 
+  const handleExportCsv = () => {
+    if (invoices.length === 0) return;
+    const headers = ['Invoice Number', 'Customer Name', 'Customer Email', 'Issue Date', 'Due Date', 'Total (USD)', 'Status', 'PayPal ID'];
+    const rows = invoices.map(i => [
+      i.invoiceNumber,
+      `"${i.customer.name.replace(/"/g, '""')}"`,
+      `"${i.customer.email.replace(/"/g, '""')}"`,
+      new Date(i.issueDate).toLocaleDateString(),
+      new Date(i.dueDate).toLocaleDateString(),
+      i.total.toFixed(2),
+      i.status,
+      i.paypalInvoiceId || ''
+    ]);
+
+    const csvContent = 'data:text/csv;charset=utf-8,' + [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+    const encodedUri = encodeURI(csvContent);
+    const link = document.createElement('a');
+    link.setAttribute('href', encodedUri);
+    link.setAttribute('download', `PayPilot_Invoices_${new Date().toISOString().slice(0, 10)}.csv`);
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
+
   const statuses = ['ALL', 'PAID', 'OVERDUE', 'SENT', 'UNPAID', 'DRAFT'];
 
   return (
-    <div className="p-8 max-w-7xl mx-auto space-y-6">
+    <div className="p-4 md:p-8 max-w-7xl mx-auto space-y-6">
       {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-card p-4 rounded-2xl border border-slate-800/80 shadow-xs">
-        <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80">
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-4 glass-card p-4 rounded-2xl border border-slate-800/80 shadow-xs">
+        <form onSubmit={handleSearchSubmit} className="relative w-full lg:w-80">
           <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
           <input
             type="text"
@@ -86,23 +120,35 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
           />
         </form>
 
-        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto">
-          {statuses.map((st) => (
-            <button
-              key={st}
-              onClick={() => setStatusFilter(st)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                statusFilter === st
-                  ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20'
-                  : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
-              }`}
-            >
-              {st}
-            </button>
-          ))}
+        <div className="flex flex-wrap items-center gap-2 w-full lg:w-auto">
+          <div className="flex items-center gap-1.5 overflow-x-auto">
+            {statuses.map((st) => (
+              <button
+                key={st}
+                onClick={() => setStatusFilter(st)}
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold transition-all ${
+                  statusFilter === st
+                    ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20'
+                    : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
+                }`}
+              >
+                {st}
+              </button>
+            ))}
+          </div>
+
+          <button
+            onClick={handleExportCsv}
+            title="Export filtered invoices to CSV"
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-dark-950 hover:bg-dark-850 text-slate-300 hover:text-white text-xs font-semibold rounded-xl border border-slate-800 transition-all ml-auto"
+          >
+            <Download className="w-3.5 h-3.5 text-slate-400" />
+            <span className="hidden sm:inline">Export CSV</span>
+          </button>
+
           <button
             onClick={onOpenCreateInvoice}
-            className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-500/20 ml-2 shrink-0 active:scale-95 transition-all"
+            className="flex items-center gap-1.5 px-3.5 py-1.5 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-500/20 shrink-0 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>New Invoice</span>
@@ -170,7 +216,16 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                       )}
                     </td>
                     <td className="py-4 px-6 text-right">
-                      <div className="flex items-center justify-end gap-1.5">
+                      <div className="flex items-center justify-end gap-1">
+                        {/* Instant QR Code generator button */}
+                        <button
+                          onClick={() => handleOpenQr(inv)}
+                          title="Generate Payment QR Code"
+                          className="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-brand-500/10 rounded-lg transition-colors"
+                        >
+                          <QrCode className="w-4 h-4" />
+                        </button>
+
                         <button
                           onClick={() => handleOpenPreview(inv)}
                           title="Preview & Details"
@@ -178,6 +233,7 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                         >
                           <Eye className="w-4 h-4" />
                         </button>
+
                         {inv.status !== 'PAID' && (
                           <a
                             href={`/pay/invoice/${inv.id}`}
@@ -189,6 +245,7 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                             <CreditCard className="w-4 h-4" />
                           </a>
                         )}
+
                         <button
                           onClick={() => handleDelete(inv.id)}
                           title="Delete"
@@ -215,6 +272,13 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
           fetchInvoices();
           setPreviewOpen(false);
         }}
+      />
+
+      {/* Dedicated Invoice Payment QR Modal */}
+      <PaymentQrModal
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+        initialInvoice={qrInvoice}
       />
     </div>
   );

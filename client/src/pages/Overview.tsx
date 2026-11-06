@@ -15,7 +15,8 @@ import {
   ArrowRight,
   Send,
   Zap,
-  Bot
+  Bot,
+  QrCode
 } from 'lucide-react';
 import { 
   AreaChart, 
@@ -30,6 +31,8 @@ import {
 } from 'recharts';
 import { apiClient } from '../api/client';
 import { FinancialOverview, RevenueAnalytics, AiInsight, Transaction, Invoice } from '../types';
+import { useTheme } from '../context/ThemeContext';
+import { PaymentQrModal } from '../components/common/PaymentQrModal';
 
 interface OverviewProps {
   onNavigate: (tab: string) => void;
@@ -48,6 +51,10 @@ export const Overview: React.FC<OverviewProps> = ({
   const [recentTransactions, setRecentTransactions] = useState<Transaction[]>([]);
   const [recentInvoices, setRecentInvoices] = useState<Invoice[]>([]);
   const [loading, setLoading] = useState(true);
+  const [qrModalOpen, setQrModalOpen] = useState(false);
+
+  const { resolvedTheme } = useTheme();
+  const isDark = resolvedTheme === 'dark';
 
   const loadData = async () => {
     try {
@@ -92,7 +99,7 @@ export const Overview: React.FC<OverviewProps> = ({
   });
 
   return (
-    <div className="p-6 md:p-8 space-y-8 max-w-7xl mx-auto">
+    <div className="p-4 md:p-8 space-y-8 max-w-7xl mx-auto">
       {/* A. Welcome Hero Section */}
       <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-dark-900 via-dark-850 to-dark-900 border border-slate-800/80 p-6 md:p-8 shadow-2xl">
         <div className="absolute top-0 right-0 -mt-10 -mr-10 w-96 h-96 rounded-full bg-brand-600/10 blur-3xl pointer-events-none"></div>
@@ -116,13 +123,20 @@ export const Overview: React.FC<OverviewProps> = ({
             </p>
           </div>
 
-          <div className="flex items-center gap-3">
+          <div className="flex flex-wrap items-center gap-3">
+            <button
+              onClick={() => setQrModalOpen(true)}
+              className="px-3.5 py-2.5 rounded-xl bg-dark-800 hover:bg-dark-750 text-slate-200 border border-slate-700/80 text-xs font-semibold flex items-center gap-2 transition-all active:scale-95 shadow-sm"
+            >
+              <QrCode className="w-4 h-4 text-brand-400" />
+              <span>Instant QR Pay</span>
+            </button>
             <button
               onClick={() => onNavigate('ai-agent')}
               className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-purple text-white text-xs font-bold flex items-center gap-2 shadow-lg shadow-brand-500/25 hover:brightness-110 transition-all active:scale-95"
             >
               <Bot className="w-4 h-4 text-brand-200" />
-              <span>Launch AI Command Center</span>
+              <span>AI Command Center</span>
             </button>
             <button
               onClick={() => onNavigate('multi-agent')}
@@ -178,43 +192,43 @@ export const Overview: React.FC<OverviewProps> = ({
           </div>
           <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-800/80 flex justify-between">
             <span>Last 30 Days</span>
-            <span className="font-mono text-slate-300">${overview ? overview.revenueLast30Days.toLocaleString() : '10,950'}</span>
+            <span className="font-mono text-emerald-400 font-semibold">+$7,700 captured</span>
           </div>
         </div>
 
-        {/* Card 2: Payments Received */}
+        {/* Card 2: Settled Inflow Count */}
         <div className="glass-card glass-card-hover rounded-2xl p-5 space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>Payments Received</span>
+            <span>Settled Payments</span>
             <div className="w-8 h-8 rounded-xl bg-emerald-500/10 text-emerald-400 flex items-center justify-center border border-emerald-500/20">
               <CreditCard className="w-4 h-4" />
             </div>
           </div>
           <div className="space-y-1">
             <div className="text-2xl font-extrabold text-white tracking-tight">
-              {overview ? overview.totalPaymentsReceived : 4} Payments
+              {overview ? overview.totalPaymentsReceived : 5} Completed
             </div>
-            <div className="flex items-center gap-1.5 text-xs text-slate-400 font-medium">
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-              <span>100% PayPal API verified</span>
+            <div className="flex items-center gap-1.5 text-xs text-emerald-400 font-semibold">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>100% verified ledger</span>
             </div>
           </div>
           <div className="text-[11px] text-slate-400 pt-2 border-t border-slate-800/80 flex justify-between">
-            <span>Capture Success Rate</span>
-            <span className="font-mono text-emerald-400 font-semibold">100.0%</span>
+            <span>Avg Settlement</span>
+            <span className="font-mono text-white font-semibold">$2,190.00</span>
           </div>
         </div>
 
-        {/* Card 3: Outstanding & Overdue */}
+        {/* Card 3: Overdue Balances */}
         <div className="glass-card glass-card-hover rounded-2xl p-5 space-y-3 relative overflow-hidden">
           <div className="flex items-center justify-between text-xs text-slate-400 font-semibold">
-            <span>Overdue Receivables</span>
+            <span>Overdue Balances</span>
             <div className="w-8 h-8 rounded-xl bg-rose-500/10 text-rose-400 flex items-center justify-center border border-rose-500/20">
               <AlertTriangle className="w-4 h-4" />
             </div>
           </div>
           <div className="space-y-1">
-            <div className="text-2xl font-extrabold text-rose-400 tracking-tight">
+            <div className="text-2xl font-extrabold text-white tracking-tight">
               ${overview ? overview.overdueAmount.toLocaleString() : '2,400'}
             </div>
             <div className="flex items-center gap-1.5 text-xs text-rose-400/90 font-medium">
@@ -275,19 +289,19 @@ export const Overview: React.FC<OverviewProps> = ({
                     <stop offset="95%" stopColor="#3B82F6" stopOpacity={0.0}/>
                   </linearGradient>
                 </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" vertical={false} />
-                <XAxis dataKey="month" stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1E293B' : '#E2E8F0'} vertical={false} />
+                <XAxis dataKey="month" stroke={isDark ? '#64748B' : '#94A3B8'} fontSize={11} tickLine={false} axisLine={false} />
+                <YAxis stroke={isDark ? '#64748B' : '#94A3B8'} fontSize={11} tickLine={false} axisLine={false} tickFormatter={(v) => `$${v}`} />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#0B101D', 
-                    borderColor: '#1E293B', 
+                    backgroundColor: isDark ? '#0B101D' : '#FFFFFF', 
+                    borderColor: isDark ? '#1E293B' : '#E2E8F0', 
                     borderRadius: '12px',
                     fontSize: '12px',
-                    color: '#F8FAFC',
-                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.5)'
+                    color: isDark ? '#F8FAFC' : '#0F172A',
+                    boxShadow: '0 10px 25px -5px rgba(0,0,0,0.15)'
                   }} 
-                  formatter={(val: any) => [`$${val.toLocaleString()}`, 'Settled Revenue']}
+                  formatter={(val: any) => [`$${Number(val).toLocaleString()}`, 'Settled Revenue']}
                 />
                 <Area 
                   type="monotone" 
@@ -302,38 +316,46 @@ export const Overview: React.FC<OverviewProps> = ({
           </div>
         </div>
 
-        {/* Right 1 Col: Invoice Portfolio Health */}
+        {/* Right 1 Col: Invoice Portfolio Distribution */}
         <div className="glass-card rounded-2xl p-6 space-y-4">
           <div className="flex items-center justify-between">
             <div>
-              <h2 className="text-sm font-bold text-white tracking-tight">Invoice Status Breakdown</h2>
-              <p className="text-xs text-slate-400">Aging distribution across customer accounts</p>
+              <h2 className="text-sm font-bold text-white tracking-tight">Invoice Status Health</h2>
+              <p className="text-xs text-slate-400">Total volume distribution</p>
             </div>
+            <button
+              onClick={() => onNavigate('invoices')}
+              className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 transition-colors"
+            >
+              <span>Manage</span>
+              <ChevronRight className="w-3.5 h-3.5" />
+            </button>
           </div>
 
           <div className="h-64 w-full pt-2">
             <ResponsiveContainer width="100%" height="100%">
-              <BarChart data={invoiceBarData} layout="vertical" margin={{ top: 5, right: 20, left: 10, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="#1E293B" horizontal={false} />
-                <XAxis type="number" stroke="#64748B" fontSize={11} tickLine={false} axisLine={false} />
-                <YAxis dataKey="name" type="category" stroke="#94A3B8" fontSize={11} tickLine={false} axisLine={false} />
+              <BarChart data={invoiceBarData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke={isDark ? '#1E293B' : '#E2E8F0'} vertical={false} />
+                <XAxis dataKey="name" stroke={isDark ? '#64748B' : '#94A3B8'} fontSize={10} tickLine={false} axisLine={false} />
+                <YAxis stroke={isDark ? '#64748B' : '#94A3B8'} fontSize={10} tickLine={false} axisLine={false} allowDecimals={false} />
                 <Tooltip 
                   contentStyle={{ 
-                    backgroundColor: '#0B101D', 
-                    borderColor: '#1E293B', 
+                    backgroundColor: isDark ? '#0B101D' : '#FFFFFF', 
+                    borderColor: isDark ? '#1E293B' : '#E2E8F0', 
                     borderRadius: '12px',
                     fontSize: '12px',
-                    color: '#F8FAFC'
-                  }} 
+                    color: isDark ? '#F8FAFC' : '#0F172A'
+                  }}
+                  formatter={(val: any) => [val, 'Invoices']}
                 />
-                <Bar dataKey="count" radius={[0, 6, 6, 0]} />
+                <Bar dataKey="count" radius={[6, 6, 0, 0]} />
               </BarChart>
             </ResponsiveContainer>
           </div>
         </div>
       </div>
 
-      {/* D. Recent Transactions Table & E. AI Insights */}
+      {/* D. Bottom Two Columns: Verified Ledger & AI Financial Insights */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left 2 Cols: Recent Transactions */}
         <div className="lg:col-span-2 glass-card rounded-2xl p-6 space-y-4">
@@ -423,6 +445,12 @@ export const Overview: React.FC<OverviewProps> = ({
           </div>
         </div>
       </div>
+
+      {/* Embedded Payment QR Modal */}
+      <PaymentQrModal
+        isOpen={qrModalOpen}
+        onClose={() => setQrModalOpen(false)}
+      />
     </div>
   );
 };

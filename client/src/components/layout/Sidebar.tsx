@@ -7,7 +7,6 @@ import {
   Receipt, 
   BarChart3, 
   Settings, 
-  ShieldCheck, 
   CreditCard, 
   LogOut, 
   Brain, 
@@ -16,7 +15,8 @@ import {
   ChevronLeft,
   ChevronRight,
   Sparkles,
-  Command
+  Command,
+  QrCode
 } from 'lucide-react';
 import { User } from '../../types';
 
@@ -25,6 +25,7 @@ interface SidebarProps {
   onSelectTab: (tab: string) => void;
   user: User | null;
   onLogout: () => void;
+  onOpenQrPay?: () => void;
   paypalConnected?: boolean;
 }
 
@@ -33,6 +34,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
   onSelectTab,
   user,
   onLogout,
+  onOpenQrPay,
   paypalConnected = true
 }) => {
   const [collapsed, setCollapsed] = useState(false);
@@ -60,8 +62,8 @@ export const Sidebar: React.FC<SidebarProps> = ({
         {/* Brand / Logo */}
         <div className="h-16 px-4 border-b border-slate-800/80 flex items-center justify-between">
           <div className="flex items-center gap-3 overflow-hidden">
-            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-accent-purple flex items-center justify-center text-white shadow-lg shadow-brand-500/25 shrink-0 relative">
-              <span className="font-extrabold text-lg tracking-tighter">P</span>
+            <div className="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 via-brand-500 to-accent-purple flex items-center justify-center text-white keep-white shadow-lg shadow-brand-500/25 shrink-0 relative">
+              <span className="font-extrabold text-lg tracking-tighter text-white keep-white">P</span>
               <div className="absolute inset-0 rounded-xl border border-white/20"></div>
             </div>
             {!collapsed && (
@@ -133,7 +135,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
                 {!collapsed && item.badge && (
                   <span className={`text-[9px] font-extrabold px-1.5 py-0.5 rounded tracking-wider uppercase ${
                     isActive
-                      ? 'bg-white/20 text-white'
+                      ? 'bg-white/20 text-white keep-white'
                       : item.badge === 'HERO'
                       ? 'bg-brand-500/20 text-brand-400 border border-brand-500/30'
                       : 'bg-slate-800 text-slate-400 border border-slate-700/60'
@@ -156,7 +158,7 @@ export const Sidebar: React.FC<SidebarProps> = ({
       <div className="p-3 border-t border-slate-800/80 bg-dark-950/40">
         <div className={`flex items-center ${collapsed ? 'justify-center p-1' : 'justify-between p-2'} rounded-xl bg-dark-850/60 border border-slate-800/60`}>
           <div className="flex items-center gap-2.5 overflow-hidden">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center font-bold text-white text-xs shrink-0 border border-slate-600/40">
+            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-slate-700 to-slate-800 flex items-center justify-center font-bold text-white keep-white text-xs shrink-0 border border-slate-600/40">
               {user?.name ? user.name[0] : 'A'}
             </div>
             {!collapsed && (
