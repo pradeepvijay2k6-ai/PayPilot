@@ -1,0 +1,176 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id             String           @id @default(uuid())
+  email          String           @unique
+  passwordHash   String
+  name           String
+  role           String           @default("USER")
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+
+  businessProfile BusinessProfile?
+  customers       Customer[]
+  invoices        Invoice[]
+  transactions    Transaction[]
+  paymentRequests PaymentRequest[]
+  aiConversations AiConversation[]
+  activityLogs    ActivityLog[]
+}
+
+model BusinessProfile {
+  id                 String   @id @default(uuid())
+  userId             String   @unique
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  businessName       String
+  email              String
+  phone              String?
+  address            String?
+  currency           String   @default("USD")
+  taxId              String?
+  logoUrl            String?
+  paypalClientId     String?
+  paypalClientSecret String?
+  aiProvider         String   @default("auto")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+}
+
+model Customer {
+  id              String           @id @default(uuid())
+  userId          String
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  name            String
+  email           String
+  company         String?
+  phone           String?
+  address         String?
+  notes           String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+
+  invoices        Invoice[]
+  transactions    Transaction[]
+  paymentRequests PaymentRequest[]
+}
+
+model Invoice {
+  id               String           @id @default(uuid())
+  invoiceNumber    String
+  userId           String
+  user             User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId       String
+  customer         Customer         @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  status           String           @default("DRAFT") // DRAFT, SENT, UNPAID, PAID, OVERDUE, CANCELLED
+  issueDate        DateTime         @default(now())
+  dueDate          DateTime
+  currency         String           @default("USD")
+  subtotal         Float
+  tax              Float            @default(0)
+  total            Float
+  notes            String?
+  terms            String?
+  paypalInvoiceId  String?
+  paypalInvoiceUrl String?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+
+  items            InvoiceItem[]
+  transactions     Transaction[]
+  paymentRequests  PaymentRequest[]
+}
+
+model InvoiceItem {
+  id          String   @id @default(uuid())
+  invoiceId   String
+  invoice     Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
+  description String
+  quantity    Float    @default(1)
+  unitPrice   Float
+  amount      Float
+}
+
+model PaymentRequest {
+  id               String        @id @default(uuid())
+  userId           String
+  user             User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId       String
+  customer         Customer      @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  invoiceId        String?
+  invoice          Invoice?      @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  amount           Float
+  currency         String        @default("USD")
+  description      String
+  status           String        @default("PENDING") // PENDING, COMPLETED, CANCELLED, EXPIRED
+  paypalOrderId    String?
+  paypalCheckoutUrl String?
+  createdAt        DateTime      @default(now())
+  updatedAt        DateTime      @updatedAt
+
+  transactions     Transaction[]
+}
+
+model Transaction {
+  id               String          @id @default(uuid())
+  userId           String
+  user             User            @relation(fields: [userId], references: [id], onDelete: Cascade)
+  customerId       String?
+  customer         Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
+  invoiceId        String?
+  invoice          Invoice?        @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
+  paymentRequestId String?
+  paymentRequest   PaymentRequest? @relation(fields: [paymentRequestId], references: [id], onDelete: SetNull)
+  paypalOrderId    String?
+  paypalCaptureId  String?
+  amount           Float
+  currency         String          @default("USD")
+  status           String          // COMPLETED, PENDING, FAILED, REFUNDED
+  paymentMethod    String          @default("PAYPAL")
+  payerEmail       String?
+  payerName        String?
+  transactionDate  DateTime        @default(now())
+  rawResponseJson  String?
+  createdAt        DateTime        @default(now())
+  updatedAt        DateTime        @updatedAt
+}
+
+model AiConversation {
+  id        String      @id @default(uuid())
+  userId    String
+  user      User        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String      @default("Financial Assistant")
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  messages  AiMessage[]
+}
+
+model AiMessage {
+  id                 String         @id @default(uuid())
+  conversationId     String
+  conversation       AiConversation @relation(fields: [conversationId], references: [id], onDelete: Cascade)
+  role               String         // user, assistant, system, tool
+  content            String
+  toolCallsJson      String?
+  toolResultsJson    String?
+  pendingActionJson  String?
+  createdAt          DateTime       @default(now())
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  action      String
+  entityType  String
+  entityId    String?
+  detailsJson String?
+  createdAt   DateTime @default(now())
+}
