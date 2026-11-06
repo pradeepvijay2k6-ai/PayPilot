@@ -13,7 +13,14 @@ import {
   TrendingUp,
   CreditCard,
   Copy,
-  Check
+  Check,
+  CheckCircle2,
+  Calendar,
+  AlertTriangle,
+  Mail,
+  Zap,
+  Command,
+  ArrowRight
 } from 'lucide-react';
 import { apiClient } from '../../api/client';
 import { AiMessageItem } from '../../types';
@@ -36,19 +43,30 @@ export const AiChatView: React.FC<AiChatViewProps> = ({
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  const suggestedPrompts = [
-    "Create an invoice for Sarah for $750 for graphic design services, due in 7 days.",
-    "Request $300 from Michael for consulting.",
-    "Show me all unpaid invoices.",
-    "Which customers have overdue payments?",
-    "Generate my monthly financial report.",
-    "Which customers frequently pay late?"
+  const heroSuggestedPrompts = [
+    "Analyze my financial performance",
+    "Find overdue invoices",
+    "Forecast my cash flow",
+    "Detect unusual transactions",
+    "Prepare payment reminders"
   ];
 
   const fetchHistory = async () => {
     try {
       const res = await apiClient.get('/ai/history');
-      setMessages(res.data.messages || []);
+      if (res.data.messages && res.data.messages.length > 0) {
+        setMessages(res.data.messages);
+      } else {
+        // Default warm welcome
+        setMessages([
+          {
+            id: 'welcome-init',
+            role: 'assistant',
+            content: "Welcome to the **PayPilot AI Command Center**. I am your autonomous financial operations agent connected directly to your live SQLite ledger and PayPal Sandbox environment. You can instruct me to create invoices, stage payment requests, audit overdue debtors, or forecast upcoming cash flow.",
+            createdAt: new Date().toISOString()
+          }
+        ]);
+      }
     } catch (err: any) {
       console.warn('Could not load AI chat history:', err.message);
     }
@@ -98,7 +116,7 @@ export const AiChatView: React.FC<AiChatViewProps> = ({
         {
           id: `err-${Date.now()}`,
           role: 'assistant',
-          content: 'Sorry, I encountered an error processing your request: ' + (err.response?.data?.error || err.message),
+          content: `Apologies, I encountered an issue executing that command: ${err.response?.data?.error || err.message}`,
           createdAt: new Date().toISOString()
         }
       ]);
@@ -107,330 +125,330 @@ export const AiChatView: React.FC<AiChatViewProps> = ({
     }
   };
 
-  const handleClearHistory = async () => {
-    if (!confirm('Clear AI conversation history?')) return;
+  const handleClearChat = async () => {
+    if (!window.confirm('Clear AI Command Center session?')) return;
     try {
-      await apiClient.delete('/ai/history');
-      await fetchHistory();
+      await apiClient.delete('/ai/conversations');
+      setMessages([
+        {
+          id: 'cleared-init',
+          role: 'assistant',
+          content: "AI session memory cleared. What financial operations would you like to perform?",
+          createdAt: new Date().toISOString()
+        }
+      ]);
     } catch (err: any) {
-      alert('Error clearing history: ' + err.message);
+      alert('Could not clear history: ' + err.message);
     }
   };
 
   const copyToClipboard = (text: string, id: string) => {
     navigator.clipboard.writeText(text);
     setCopiedId(id);
-    setTimeout(() => setCopiedId(null), 2000);
+    setTimeout(() => setCopiedId(null), 2500);
   };
 
-  // Helper to render markdown bold and linebreaks cleanly
-  const renderFormattedText = (content: string) => {
-    return content.split('\n').map((line, idx) => {
-      // Split bold formatting
-      const parts = line.split(/(\*\*.*?\*\*)/g);
+  // Structured Tool Result Renderer
+  const renderToolResult = (toolExecuted?: string, toolResult?: any) => {
+    if (!toolResult) return null;
+
+    // Tool 1: Unpaid Invoices
+    if (toolExecuted === 'get_unpaid_invoices' && toolResult.invoices) {
       return (
-        <p key={idx} className={line.startsWith('- ') ? 'ml-3 list-disc' : 'my-1'}>
-          {parts.map((part, pIdx) => {
-            if (part.startsWith('**') && part.endsWith('**')) {
-              return <strong key={pIdx} className="font-bold text-slate-900">{part.slice(2, -2)}</strong>;
-            }
-            return part;
-          })}
-        </p>
+        <div className="mt-3 p-3.5 bg-dark-900/90 rounded-xl border border-slate-800 space-y-2 text-xs">
+          <div className="flex items-center justify-between text-slate-300 font-bold border-b border-slate-800 pb-2">
+            <span className="flex items-center gap-1.5 text-blue-400">
+              <FileText className="w-4 h-4" />
+              Unsettled Invoices ({toolResult.invoices.length})
+            </span>
+            <span className="text-white font-mono font-extrabold">${toolResult.totalUnpaidAmount?.toLocaleString()}</span>
+          </div>
+          <div className="divide-y divide-slate-800/60 max-h-48 overflow-y-auto">
+            {toolResult.invoices.map((inv: any) => (
+              <div key={inv.id} className="py-2 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-white block">{inv.invoiceNumber} • {inv.customerName}</span>
+                  <span className="text-[10px] text-slate-400 font-medium">{inv.isOverdue ? `${inv.daysOverdue}d overdue` : `Due ${inv.dueDate}`}</span>
+                </div>
+                <div className="text-right flex items-center gap-2">
+                  <span className={`font-mono font-bold ${inv.isOverdue ? 'text-rose-400' : 'text-slate-200'}`}>
+                    ${inv.amount.toLocaleString()}
+                  </span>
+                  {onNavigateToInvoice && (
+                    <button
+                      onClick={() => onNavigateToInvoice(inv.id)}
+                      className="p-1 rounded text-slate-400 hover:text-brand-400 hover:bg-dark-800 transition-colors"
+                      title="Inspect Invoice"
+                    >
+                      <ExternalLink className="w-3.5 h-3.5" />
+                    </button>
+                  )}
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
       );
-    });
+    }
+
+    // Tool 2: Overdue Customers Analysis
+    if (toolExecuted === 'identify_overdue_customers' && toolResult.overdueCustomers) {
+      return (
+        <div className="mt-3 p-3.5 bg-dark-900/90 rounded-xl border border-rose-500/30 space-y-2 text-xs">
+          <div className="flex items-center justify-between text-rose-400 font-bold border-b border-slate-800 pb-2">
+            <span className="flex items-center gap-1.5">
+              <AlertTriangle className="w-4 h-4" />
+              Delinquent Accounts ({toolResult.overdueCustomers.length})
+            </span>
+            <span className="font-mono text-white font-extrabold">${toolResult.totalOverdueDebt?.toLocaleString()}</span>
+          </div>
+          <div className="space-y-2 pt-1">
+            {toolResult.overdueCustomers.map((c: any) => (
+              <div key={c.customerId} className="p-2.5 rounded-lg bg-dark-850/80 border border-slate-800 flex items-center justify-between">
+                <div>
+                  <span className="font-bold text-white block">{c.name}</span>
+                  <span className="text-[10px] text-slate-400">{c.company} • Delay: {c.avgDelayDays} days</span>
+                </div>
+                <div className="text-right">
+                  <span className="font-mono font-bold text-rose-400 block">${c.totalOverdueAmount?.toLocaleString()}</span>
+                  <span className="text-[9px] font-bold text-amber-400 bg-amber-500/10 px-1.5 py-0.2 rounded border border-amber-500/20">
+                    Reliability {c.reliabilityScore}/100
+                  </span>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      );
+    }
+
+    // Tool 3: Monthly Financial Report
+    if (toolExecuted === 'generate_financial_report' && toolResult.overview) {
+      return (
+        <div className="mt-3 p-4 bg-dark-900/90 rounded-xl border border-brand-500/30 space-y-3 text-xs">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span className="font-bold text-white flex items-center gap-1.5">
+              <TrendingUp className="w-4 h-4 text-brand-400" />
+              Executive Financial Summary
+            </span>
+            <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              +{toolResult.overview.growthRate}% MoM
+            </span>
+          </div>
+          <div className="grid grid-cols-2 gap-2 text-center">
+            <div className="bg-dark-850 p-2.5 rounded-lg border border-slate-800">
+              <span className="text-[10px] text-slate-400 block">Total Revenue</span>
+              <span className="text-sm font-extrabold text-white">${toolResult.overview.totalRevenue?.toLocaleString()}</span>
+            </div>
+            <div className="bg-dark-850 p-2.5 rounded-lg border border-slate-800">
+              <span className="text-[10px] text-slate-400 block">Overdue Capital</span>
+              <span className="text-sm font-extrabold text-rose-400">${toolResult.overview.overdueAmount?.toLocaleString()}</span>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Tool 4: Payment Request Created
+    if (toolExecuted === 'create_payment_request' && toolResult.checkoutUrl) {
+      return (
+        <div className="mt-3 p-4 bg-gradient-to-r from-brand-950/40 via-dark-850 to-dark-900 rounded-xl border border-brand-500/40 space-y-3 text-xs">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span className="font-bold text-white flex items-center gap-1.5">
+              <CreditCard className="w-4 h-4 text-brand-400" />
+              Payment Request Ready (${toolResult.amount?.toFixed(2)})
+            </span>
+            <span className="text-[10px] font-bold text-emerald-400 bg-emerald-500/10 px-2 py-0.5 rounded border border-emerald-500/20">
+              PayPal Order Prepared
+            </span>
+          </div>
+
+          <div className="bg-dark-900 p-2.5 rounded-lg border border-slate-800 flex items-center justify-between gap-2">
+            <span className="font-mono text-[11px] text-slate-300 truncate">{toolResult.checkoutUrl}</span>
+            <div className="flex items-center gap-1 shrink-0">
+              <button
+                onClick={() => copyToClipboard(toolResult.checkoutUrl, toolResult.paymentRequestId)}
+                className="p-1.5 rounded-md bg-dark-800 hover:bg-dark-750 text-slate-300 text-xs flex items-center gap-1 border border-slate-700"
+              >
+                {copiedId === toolResult.paymentRequestId ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
+                <span>{copiedId === toolResult.paymentRequestId ? 'Copied' : 'Copy'}</span>
+              </button>
+              <a
+                href={toolResult.checkoutUrl}
+                target="_blank"
+                rel="noreferrer"
+                className="p-1.5 rounded-md bg-brand-600 hover:bg-brand-500 text-white text-xs flex items-center gap-1 font-semibold"
+              >
+                <ExternalLink className="w-3.5 h-3.5" />
+                <span>Open Checkout</span>
+              </a>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    // Tool 5: Draft Payment Reminder
+    if (toolExecuted === 'draft_payment_reminder' && toolResult.reminderDraft) {
+      return (
+        <div className="mt-3 p-4 bg-dark-900/90 rounded-xl border border-slate-800 space-y-2 text-xs">
+          <div className="flex items-center justify-between border-b border-slate-800 pb-2">
+            <span className="font-bold text-white flex items-center gap-1.5">
+              <Mail className="w-4 h-4 text-accent-cyan" />
+              Prepared Reminder Notice
+            </span>
+            <button
+              onClick={() => copyToClipboard(toolResult.reminderDraft.body, 'draft-body')}
+              className="text-[11px] font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1"
+            >
+              {copiedId === 'draft-body' ? 'Copied Body!' : 'Copy Notice'}
+            </button>
+          </div>
+          <div className="bg-dark-850 p-3 rounded-lg border border-slate-800/80 font-mono text-[11px] text-slate-300 whitespace-pre-line leading-relaxed">
+            {toolResult.reminderDraft.body}
+          </div>
+        </div>
+      );
+    }
+
+    return null;
   };
 
   return (
-    <div className={`flex flex-col bg-white ${fullPage ? 'h-[calc(100vh-4rem)]' : 'h-[600px]'} rounded-xl border border-slate-200/80 shadow-sm overflow-hidden`}>
-      {/* Top Header */}
-      <div className="px-5 py-3.5 border-b border-slate-200/80 flex items-center justify-between bg-slate-50/50">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-brand-600 to-paypal-lightBlue flex items-center justify-center text-white shadow-sm shadow-brand-500/20">
+    <div className={`flex flex-col ${fullPage ? 'h-[720px]' : 'h-[580px]'} glass-card rounded-2xl border border-slate-800/80 shadow-2xl overflow-hidden relative`}>
+      {/* Header Bar */}
+      <div className="h-14 px-5 bg-dark-900/95 border-b border-slate-800/80 flex items-center justify-between shrink-0">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-brand-600 to-accent-purple flex items-center justify-center text-white shadow-md shadow-brand-500/20">
             <Bot className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-sm font-bold text-slate-900">PayPilot Financial Operations Agent</h3>
-            <p className="text-[11px] text-slate-500">Autonomous invoice creation, debt tracking & PayPal operations</p>
+            <div className="flex items-center gap-2">
+              <h2 className="text-xs font-bold text-white">AI Command Center</h2>
+              <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            </div>
+            <p className="text-[10px] text-slate-400">Natural language PayPal operations & ledger reasoning</p>
           </div>
         </div>
-        <button
-          onClick={handleClearHistory}
-          title="Clear Conversation"
-          className="p-1.5 text-slate-400 hover:text-slate-600 hover:bg-slate-200/60 rounded-lg transition-colors"
-        >
-          <Trash2 className="w-4 h-4" />
-        </button>
+
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleClearChat}
+            title="Reset conversation"
+            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-200 hover:bg-dark-800 transition-colors"
+          >
+            <Trash2 className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
-      {/* Suggested Prompts Banner */}
-      <div className="px-5 py-2.5 bg-slate-50/70 border-b border-slate-200/60 overflow-x-auto whitespace-nowrap flex gap-2">
-        <span className="text-[11px] font-semibold text-slate-400 self-center uppercase tracking-wider flex items-center gap-1">
-          <Sparkles className="w-3 h-3 text-brand-600" /> Prompts:
+      {/* Suggested Hero Prompts Row */}
+      <div className="px-5 py-2.5 bg-dark-950/50 border-b border-slate-800/60 flex items-center gap-2 overflow-x-auto no-scrollbar shrink-0">
+        <span className="text-[11px] font-bold text-slate-400 flex items-center gap-1 shrink-0 mr-1">
+          <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+          Command Prompts:
         </span>
-        {suggestedPrompts.map((prompt, idx) => (
+        {heroSuggestedPrompts.map((promptText, i) => (
           <button
-            key={idx}
-            onClick={() => handleSendMessage(prompt)}
-            className="text-xs bg-white hover:bg-brand-50 hover:text-brand-700 text-slate-600 px-3 py-1 rounded-full border border-slate-200/90 shadow-2xs transition-all active:scale-95 text-left"
+            key={i}
+            onClick={() => handleSendMessage(promptText)}
+            disabled={loading}
+            className="text-xs font-medium text-slate-300 bg-dark-850 hover:bg-dark-800 hover:text-white px-3 py-1 rounded-full border border-slate-700/60 whitespace-nowrap transition-all shadow-sm active:scale-95 disabled:opacity-50"
           >
-            {prompt}
+            {promptText}
           </button>
         ))}
       </div>
 
-      {/* Messages Scroll Area */}
-      <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/30">
-        {messages.map((msg) => {
-          const isUser = msg.role === 'user';
-          return (
-            <div
-              key={msg.id}
-              className={`flex gap-3 ${isUser ? 'justify-end' : 'justify-start'}`}
-            >
-              {!isUser && (
-                <div className="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center shrink-0 mt-0.5 shadow-xs">
-                  <Bot className="w-4 h-4" />
-                </div>
-              )}
+      {/* Messages Thread Container */}
+      <div className="flex-1 p-5 overflow-y-auto space-y-4">
+        {messages.map((msg) => (
+          <div
+            key={msg.id}
+            className={`flex flex-col ${msg.role === 'user' ? 'items-end' : 'items-start'}`}
+          >
+            <div className="flex items-center gap-2 mb-1 px-1">
+              <span className="text-[9px] font-mono uppercase tracking-wider text-slate-500">
+                {msg.role === 'user' ? 'You' : 'PayPilot AI'}
+              </span>
+              <span className="text-[9px] font-mono text-slate-500">
+                {new Date(msg.createdAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+              </span>
+            </div>
 
-              <div className={`max-w-[85%] ${isUser ? 'bg-brand-600 text-white rounded-2xl rounded-tr-xs px-4 py-2.5 text-sm shadow-sm' : 'bg-white border border-slate-200/80 rounded-2xl rounded-tl-xs p-4 text-xs shadow-xs text-slate-700'}`}>
-                {/* Formatted Text Message */}
-                <div className={isUser ? 'text-white' : 'text-slate-700 leading-relaxed'}>
-                  {renderFormattedText(msg.content)}
+            {msg.role === 'user' ? (
+              <div className="bg-gradient-to-r from-brand-600 to-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-xs md:text-sm max-w-lg shadow-md border border-white/10 font-medium leading-relaxed">
+                {msg.content}
+              </div>
+            ) : (
+              <div className="w-full max-w-3xl bg-dark-850/95 text-slate-100 rounded-2xl rounded-tl-sm border border-slate-700/70 p-4 shadow-xl space-y-3">
+                {/* Text Content */}
+                <div className="text-xs md:text-sm text-slate-200 whitespace-pre-line leading-relaxed font-sans">
+                  {msg.content}
                 </div>
 
-                {/* Render Action Confirmation Card if requiring approval */}
+                {/* Structured Tool Output if any */}
+                {renderToolResult(msg.toolExecuted, msg.toolResult)}
+
+                {/* Explicit Action Confirmation Card if required */}
                 {msg.pendingAction && (
                   <ActionConfirmationCard
                     action={msg.pendingAction}
                     onActionCompleted={(successMsg) => {
                       if (onInvoiceCreated) onInvoiceCreated();
-                      setMessages((prev) => [
-                        ...prev,
-                        {
-                          id: `conf-${Date.now()}`,
-                          role: 'assistant',
-                          content: successMsg,
-                          createdAt: new Date().toISOString()
-                        }
-                      ]);
+                      handleSendMessage("Invoice confirmed and registered.");
                     }}
-                    onCancel={() => {}}
+                    onCancel={() => {
+                      handleSendMessage("Action cancelled.");
+                    }}
                   />
                 )}
-
-                {/* Render Tool Result 1: Payment Request */}
-                {msg.toolExecuted === 'create_payment_request' && msg.toolResult && (
-                  <div className="mt-3 p-3 bg-brand-50/60 border border-brand-200 rounded-xl space-y-2">
-                    <div className="flex items-center justify-between">
-                      <span className="font-bold text-slate-900 text-sm">Payment Link Ready</span>
-                      <span className="text-xs font-bold text-brand-700">${msg.toolResult.amount?.toFixed(2)} USD</span>
-                    </div>
-                    <p className="text-slate-600 text-[11px]">{msg.toolResult.description} for {msg.toolResult.customerName}</p>
-                    <div className="flex items-center gap-2 pt-1">
-                      <a
-                        href={msg.toolResult.checkoutUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="flex-1 flex items-center justify-center gap-1.5 py-1.5 px-3 bg-paypal-blue hover:bg-paypal-lightBlue text-white text-xs font-semibold rounded-lg shadow-sm transition-colors"
-                      >
-                        <CreditCard className="w-3.5 h-3.5" />
-                        <span>Open Customer PayPal Checkout</span>
-                        <ExternalLink className="w-3 h-3" />
-                      </a>
-                    </div>
-                  </div>
-                )}
-
-                {/* Render Tool Result 2: Invoices list */}
-                {(msg.toolExecuted === 'get_unpaid_invoices' || msg.toolExecuted === 'identify_overdue_customers') && msg.toolResult?.invoices && (
-                  <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
-                    <table className="w-full text-left text-[11px]">
-                      <thead className="bg-slate-100/80 text-slate-600 uppercase font-semibold">
-                        <tr>
-                          <th className="p-2">Invoice #</th>
-                          <th className="p-2">Customer</th>
-                          <th className="p-2">Amount</th>
-                          <th className="p-2">Due Date</th>
-                          <th className="p-2">Status</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 bg-white">
-                        {msg.toolResult.invoices.map((inv: any) => (
-                          <tr key={inv.id} className="hover:bg-slate-50">
-                            <td className="p-2 font-mono font-semibold text-brand-700">{inv.invoiceNumber}</td>
-                            <td className="p-2 font-medium">{inv.customerName}</td>
-                            <td className="p-2 font-bold">${inv.amount?.toFixed(2)}</td>
-                            <td className="p-2 text-slate-500">{inv.dueDate}</td>
-                            <td className="p-2">
-                              <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                                inv.status === 'OVERDUE' ? 'bg-rose-100 text-rose-700' : 'bg-amber-100 text-amber-700'
-                              }`}>
-                                {inv.status === 'OVERDUE' ? `${inv.daysOverdue}d overdue` : inv.status}
-                              </span>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* Render Tool Result 3: Customer Payment Delay Analysis */}
-                {msg.toolExecuted === 'analyze_customer_payments' && Array.isArray(msg.toolResult) && (
-                  <div className="mt-3 overflow-hidden rounded-lg border border-slate-200">
-                    <table className="w-full text-left text-[11px]">
-                      <thead className="bg-slate-100/80 text-slate-600 uppercase font-semibold">
-                        <tr>
-                          <th className="p-2">Customer</th>
-                          <th className="p-2">Company</th>
-                          <th className="p-2">Overdue Debt</th>
-                          <th className="p-2">Avg Delay</th>
-                          <th className="p-2">Reliability</th>
-                        </tr>
-                      </thead>
-                      <tbody className="divide-y divide-slate-100 bg-white">
-                        {msg.toolResult.map((c: any) => (
-                          <tr key={c.customerId} className="hover:bg-slate-50">
-                            <td className="p-2 font-semibold text-slate-800">{c.name}</td>
-                            <td className="p-2 text-slate-500">{c.company}</td>
-                            <td className="p-2 font-bold text-rose-600">${c.totalOverdueAmount?.toLocaleString()}</td>
-                            <td className="p-2 font-medium">{c.avgDelayDays} days</td>
-                            <td className="p-2">
-                              <div className="flex items-center gap-1.5">
-                                <div className="w-12 bg-slate-200 rounded-full h-1.5">
-                                  <div
-                                    className={`h-1.5 rounded-full ${
-                                      c.reliabilityScore > 70 ? 'bg-emerald-500' : c.reliabilityScore > 40 ? 'bg-amber-500' : 'bg-rose-500'
-                                    }`}
-                                    style={{ width: `${c.reliabilityScore}%` }}
-                                  />
-                                </div>
-                                <span className="font-mono text-[10px]">{c.reliabilityScore}%</span>
-                              </div>
-                            </td>
-                          </tr>
-                        ))}
-                      </tbody>
-                    </table>
-                  </div>
-                )}
-
-                {/* Render Tool Result 4: Financial Report Card */}
-                {msg.toolExecuted === 'generate_financial_report' && msg.toolResult && (
-                  <div className="mt-3 p-3.5 bg-slate-50 border border-slate-200 rounded-xl space-y-3">
-                    <div className="flex justify-between items-center border-b border-slate-200/80 pb-2">
-                      <span className="font-bold text-slate-900 text-sm">Monthly Report Summary</span>
-                      <span className="text-[11px] font-bold text-brand-600">{msg.toolResult.month}</span>
-                    </div>
-
-                    <div className="grid grid-cols-3 gap-2">
-                      <div className="bg-white p-2 rounded-lg border border-slate-200/60">
-                        <span className="text-[10px] text-slate-500 block">Total Revenue</span>
-                        <span className="font-extrabold text-slate-900 text-sm">${msg.toolResult.totalRevenue?.toLocaleString()}</span>
-                      </div>
-                      <div className="bg-white p-2 rounded-lg border border-slate-200/60">
-                        <span className="text-[10px] text-slate-500 block">Growth (30d)</span>
-                        <span className="font-extrabold text-emerald-600 text-sm">+{msg.toolResult.growthRate}%</span>
-                      </div>
-                      <div className="bg-white p-2 rounded-lg border border-slate-200/60">
-                        <span className="text-[10px] text-slate-500 block">Overdue Debt</span>
-                        <span className="font-extrabold text-rose-600 text-sm">${msg.toolResult.overdueAmount?.toLocaleString()}</span>
-                      </div>
-                    </div>
-
-                    {msg.toolResult.topPayingCustomers?.length > 0 && (
-                      <div>
-                        <span className="text-[11px] font-semibold text-slate-700 block mb-1">Top Revenue Contributors:</span>
-                        <div className="space-y-1">
-                          {msg.toolResult.topPayingCustomers.map((top: any, tIdx: number) => (
-                            <div key={tIdx} className="flex justify-between text-[11px] bg-white px-2 py-1 rounded border border-slate-100">
-                              <span className="font-medium text-slate-800">{top.name} ({top.company})</span>
-                              <span className="font-bold text-slate-900">${top.totalPaid?.toLocaleString()}</span>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    )}
-                  </div>
-                )}
-
-                {/* Render Tool Result 5: Payment Reminder Draft */}
-                {msg.toolExecuted === 'draft_payment_reminder' && msg.toolResult?.body && (
-                  <div className="mt-3 p-3 bg-amber-50/60 border border-amber-200 rounded-xl space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-bold text-amber-900 text-xs">Email Reminder Draft</span>
-                      <button
-                        onClick={() => copyToClipboard(msg.toolResult.body, msg.id)}
-                        className="flex items-center gap-1 text-[11px] font-semibold text-amber-800 hover:text-amber-950 bg-amber-100 px-2 py-0.5 rounded transition-colors"
-                      >
-                        {copiedId === msg.id ? (
-                          <>
-                            <Check className="w-3 h-3 text-emerald-600" />
-                            <span>Copied!</span>
-                          </>
-                        ) : (
-                          <>
-                            <Copy className="w-3 h-3" />
-                            <span>Copy Message</span>
-                          </>
-                        )}
-                      </button>
-                    </div>
-                    <pre className="text-[11px] text-slate-700 font-sans whitespace-pre-wrap bg-white p-2.5 rounded-lg border border-amber-200/60">
-                      {msg.toolResult.body}
-                    </pre>
-                  </div>
-                )}
               </div>
-
-              {isUser && (
-                <div className="w-7 h-7 rounded-lg bg-slate-800 text-white flex items-center justify-center shrink-0 mt-0.5">
-                  <UserIcon className="w-4 h-4" />
-                </div>
-              )}
-            </div>
-          );
-        })}
+            )}
+          </div>
+        ))}
 
         {loading && (
-          <div className="flex gap-3 items-center text-slate-400 text-xs py-2">
-            <div className="w-7 h-7 rounded-lg bg-brand-600 text-white flex items-center justify-center shrink-0">
+          <div className="flex items-start gap-3">
+            <div className="w-8 h-8 rounded-xl bg-dark-800 border border-slate-700 flex items-center justify-center text-brand-400 animate-pulse">
               <Bot className="w-4 h-4" />
             </div>
-            <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-slate-200/80 shadow-2xs">
-              <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-600" />
-              <span>PayPilot Agent is analyzing finances & executing tools...</span>
+            <div className="bg-dark-850 border border-slate-700/70 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-400 space-y-2">
+              <div className="flex items-center gap-2 text-white font-semibold">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-400" />
+                <span>PayPilot AI analyzing financial records...</span>
+              </div>
+              <p className="text-[11px] text-slate-500">Querying live database & computing PayPal sandbox tool operations.</p>
             </div>
           </div>
         )}
         <div ref={messagesEndRef} />
       </div>
 
-      {/* Input Form */}
-      <div className="p-3.5 border-t border-slate-200/80 bg-white">
+      {/* Hero Command Input Bar */}
+      <div className="p-4 bg-dark-900/95 border-t border-slate-800/80 shrink-0">
         <form
           onSubmit={(e) => {
             e.preventDefault();
             handleSendMessage();
           }}
-          className="flex items-center gap-2"
+          className="flex items-center gap-2 bg-dark-950 p-1.5 rounded-2xl border border-slate-700/80 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-all shadow-inner"
         >
           <input
             type="text"
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask PayPilot e.g. 'Create an invoice for Sarah for $750 for graphic design services'..."
-            className="flex-1 bg-slate-50 border border-slate-200/90 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20 focus:border-brand-500 transition-all"
+            placeholder="Ask PayPilot anything about your business finances..."
+            disabled={loading}
+            className="flex-1 bg-transparent px-4 py-2 text-xs md:text-sm text-white placeholder-slate-500 outline-none"
           />
           <button
             type="submit"
-            disabled={!input.trim() || loading}
-            className="px-4 py-2.5 bg-brand-600 hover:bg-brand-700 text-white rounded-xl text-xs font-semibold shadow-sm transition-all active:scale-95 disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1.5"
+            disabled={loading || !input.trim()}
+            className="bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-brand-600/30 transition-all active:scale-95 shrink-0"
           >
-            <span>Send</span>
             <Send className="w-3.5 h-3.5" />
+            <span className="hidden sm:inline">Execute</span>
           </button>
         </form>
       </div>

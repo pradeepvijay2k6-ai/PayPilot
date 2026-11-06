@@ -49,28 +49,28 @@ export const AiInsightsPage: React.FC<AiInsightsPageProps> = ({ onNavigateToAgen
   return (
     <div className="p-8 max-w-6xl mx-auto space-y-8">
       {/* Financial Health Score Gauge */}
-      <div className="bg-gradient-to-r from-navy-900 to-slate-900 text-white p-8 rounded-3xl border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
+      <div className="glass-card text-white p-8 rounded-3xl border border-slate-800 shadow-xl flex flex-col md:flex-row items-center justify-between gap-6">
         <div>
           <div className="flex items-center gap-2 mb-2">
-            <span className="text-[10px] font-bold uppercase tracking-wider bg-brand-500/20 text-brand-300 px-2.5 py-0.5 rounded-full border border-brand-500/30">
+            <span className="text-[10px] font-semibold uppercase tracking-wider bg-brand-500/10 text-brand-400 px-2.5 py-0.5 rounded-full border border-brand-500/20">
               PayPilot AI Diagnostic
             </span>
           </div>
-          <h2 className="text-2xl font-black tracking-tight">Business Financial Health Index</h2>
-          <p className="text-xs text-slate-300 max-w-md mt-1 leading-relaxed">
+          <h2 className="text-2xl font-bold tracking-tight text-white">Business Financial Health Index</h2>
+          <p className="text-xs text-slate-400 max-w-md mt-1 leading-relaxed">
             Our autonomous financial agent continuously monitors your PayPal cash flow velocity, payment punctuality, and overdue exposure.
           </p>
         </div>
 
-        <div className="flex items-center gap-6 bg-slate-800/60 p-4 rounded-2xl border border-slate-700/60">
+        <div className="flex items-center gap-6 bg-dark-950 p-4 rounded-2xl border border-slate-800">
           <div className="text-center">
-            <span className="text-4xl font-black text-brand-400 font-mono">{healthScore}</span>
-            <span className="text-slate-400 text-xs block font-bold mt-0.5">/ 100</span>
+            <span className="text-4xl font-bold text-brand-400 font-mono">{healthScore}</span>
+            <span className="text-slate-500 text-xs block font-mono mt-0.5">/ 100</span>
           </div>
           <div className="text-xs text-slate-300 space-y-1">
-            <p className="font-bold text-white">Status: {healthScore > 80 ? 'Excellent' : healthScore > 60 ? 'Healthy' : 'Attention Needed'}</p>
-            <p className="text-[11px] text-slate-400">Overdue Debt: ${(overview?.overdueAmount || 0).toLocaleString()} USD</p>
-            <p className="text-[11px] text-emerald-400 font-semibold">Growth: +{overview?.monthlyGrowthRate || 0}% 30-Day</p>
+            <p className="font-semibold text-white">Status: <span className="text-brand-300">{healthScore > 80 ? 'Excellent' : healthScore > 60 ? 'Healthy' : 'Attention Needed'}</span></p>
+            <p className="text-[11px] text-slate-400">Overdue Debt: <span className="font-mono text-slate-200">${(overview?.overdueAmount || 0).toLocaleString()} USD</span></p>
+            <p className="text-[11px] text-emerald-400 font-semibold font-mono">Growth: +{overview?.monthlyGrowthRate || 0}% 30-Day</p>
           </div>
         </div>
       </div>
@@ -78,13 +78,13 @@ export const AiInsightsPage: React.FC<AiInsightsPageProps> = ({ onNavigateToAgen
       {/* Intelligent Insights List */}
       <div className="space-y-4">
         <div className="flex justify-between items-center">
-          <h3 className="text-sm font-bold text-slate-900 uppercase tracking-wider flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-brand-600" />
+          <h3 className="text-sm font-semibold text-white uppercase tracking-wider flex items-center gap-2">
+            <Sparkles className="w-4 h-4 text-brand-400" />
             Detected Operational Insights ({insights.length})
           </h3>
           <button
             onClick={onNavigateToAgent}
-            className="text-xs font-semibold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+            className="text-xs font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 transition-colors"
           >
             <span>Ask Agent to Act</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -100,25 +100,25 @@ export const AiInsightsPage: React.FC<AiInsightsPageProps> = ({ onNavigateToAgen
             return (
               <div
                 key={ins.id}
-                className={`p-5 rounded-2xl border bg-white shadow-xs space-y-3 ${
-                  isCritical ? 'border-rose-200' :
-                  isWarning ? 'border-amber-200' :
-                  isPositive ? 'border-emerald-200' : 'border-slate-200'
+                className={`p-5 rounded-2xl border glass-card shadow-xs space-y-3 ${
+                  isCritical ? 'border-rose-500/30' :
+                  isWarning ? 'border-amber-500/30' :
+                  isPositive ? 'border-emerald-500/30' : 'border-slate-800'
                 }`}
               >
                 <div className="flex justify-between items-start">
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2.5">
                     <div className={`w-8 h-8 rounded-xl flex items-center justify-center font-bold ${
-                      isCritical ? 'bg-rose-50 text-rose-600' :
-                      isWarning ? 'bg-amber-50 text-amber-600' :
-                      isPositive ? 'bg-emerald-50 text-emerald-600' : 'bg-slate-100 text-slate-600'
+                      isCritical ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                      isWarning ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                      isPositive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-dark-950 border border-slate-800 text-slate-400'
                     }`}>
                       {isCritical || isWarning ? <AlertTriangle className="w-4 h-4" /> : <TrendingUp className="w-4 h-4" />}
                     </div>
                     <div>
-                      <h4 className="text-xs font-bold text-slate-900">{ins.title}</h4>
+                      <h4 className="text-xs font-semibold text-white">{ins.title}</h4>
                       <span className={`text-[10px] font-bold uppercase ${
-                        isCritical ? 'text-rose-600' : isWarning ? 'text-amber-600' : 'text-emerald-600'
+                        isCritical ? 'text-rose-400' : isWarning ? 'text-amber-400' : 'text-emerald-400'
                       }`}>
                         {ins.priority} Priority
                       </span>
@@ -126,22 +126,22 @@ export const AiInsightsPage: React.FC<AiInsightsPageProps> = ({ onNavigateToAgen
                   </div>
 
                   <span className={`px-2.5 py-1 rounded-lg text-xs font-mono font-bold ${
-                    isCritical ? 'bg-rose-50 text-rose-700' :
-                    isWarning ? 'bg-amber-50 text-amber-700' :
-                    isPositive ? 'bg-emerald-50 text-emerald-700' : 'bg-slate-100 text-slate-700'
+                    isCritical ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                    isWarning ? 'bg-amber-500/10 text-amber-400 border border-amber-500/20' :
+                    isPositive ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-dark-950 text-slate-300 border border-slate-800'
                   }`}>
                     {ins.metric}
                   </span>
                 </div>
 
-                <p className="text-xs text-slate-600 leading-relaxed font-medium">
+                <p className="text-xs text-slate-300 leading-relaxed font-medium">
                   {ins.description}
                 </p>
 
-                <div className="pt-2 border-t border-slate-100 flex justify-end">
+                <div className="pt-2 border-t border-slate-800/60 flex justify-end">
                   <button
                     onClick={onNavigateToAgent}
-                    className="text-[11px] font-bold text-brand-600 hover:text-brand-700 flex items-center gap-1"
+                    className="text-[11px] font-semibold text-brand-400 hover:text-brand-300 flex items-center gap-1 transition-colors"
                   >
                     <span>Execute with AI</span>
                     <ArrowRight className="w-3 h-3" />

@@ -7,7 +7,6 @@ import {
   Send, 
   Sparkles, 
   Clock, 
-  ArrowRight, 
   DollarSign, 
   UserCheck, 
   CheckCircle2, 
@@ -15,7 +14,10 @@ import {
   ChevronUp,
   Mail,
   Zap,
-  Info
+  Info,
+  Activity,
+  Layers,
+  ArrowRight
 } from 'lucide-react';
 import { apiClient } from '../api/client';
 import { MultiAgentResponse, AgentStatusInfo } from '../types';
@@ -30,19 +32,18 @@ interface Message {
 
 export const MultiAgentPage: React.FC = () => {
   const [agents, setAgents] = useState<AgentStatusInfo[]>([
-    { name: 'Finance Agent', role: 'Revenue Velocity & Cash Forecasting', status: 'READY', dataPoints: 'Auditing ledger...' },
-    { name: 'Collections Agent', role: 'Overdue Recovery & Debtor Sequencing', status: 'READY', dataPoints: 'Monitoring aging...' },
-    { name: 'Risk Agent', role: 'Transaction Anomaly & Integrity Guard', status: 'READY', dataPoints: 'Scanning logs...' },
+    { name: 'Finance Agent', role: 'Revenue Velocity & Cash Forecasting', status: 'READY', dataPoints: '4 settled transactions analyzed' },
+    { name: 'Collections Agent', role: 'Overdue Recovery & Debtor Sequencing', status: 'READY', dataPoints: '3 overdue records monitored' },
+    { name: 'Risk Agent', role: 'Transaction Anomaly & Integrity Guard', status: 'READY', dataPoints: '4 transaction logs audited' },
   ]);
 
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [activeAgentTab, setActiveAgentTab] = useState<'all' | 'finance' | 'collections' | 'risk'>('all');
-  const [timelineExpanded, setTimelineExpanded] = useState(false);
+  const [timelineExpanded, setTimelineExpanded] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Fetch status of all 3 agents on mount
   useEffect(() => {
     const fetchStatus = async () => {
       try {
@@ -56,12 +57,11 @@ export const MultiAgentPage: React.FC = () => {
     };
     fetchStatus();
 
-    // Default welcome prompt
     setMessages([
       {
-        id: 'welcome-1',
+        id: 'welcome-multi-agent',
         sender: 'orchestrator',
-        text: 'Welcome to the **Multi-Agent Financial Intelligence System**. I coordinate three specialized AI agents that run parallel audits on your live PayPal records: **Finance Agent**, **Collections Agent**, and **Risk Agent**. Ask a strategic question below to initiate cross-agent orchestration.',
+        text: 'Welcome to the **Multi-Agent Financial Intelligence System**. I coordinate three specialized AI agents executing in parallel across your live database records: **Finance Agent** (revenue velocity & 7/30d liquidity forecasting), **Collections Agent** (delinquent debtor sequencing & reminder preparation), and **Risk Agent** (outlier detection & transaction audit). Enter a question or select a strategic query below to dispatch the council.',
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
       }
     ]);
@@ -116,153 +116,173 @@ export const MultiAgentPage: React.FC = () => {
   ];
 
   return (
-    <div className="p-6 max-w-7xl mx-auto space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200">
-        <div>
-          <div className="flex items-center gap-2">
-            <div className="p-2 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-500/20">
-              <Brain className="w-5 h-5" />
+    <div className="p-6 md:p-8 max-w-7xl mx-auto space-y-6">
+      {/* Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-dark-900 via-dark-850 to-dark-900 border border-slate-800/80 p-6 shadow-2xl">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-accent-purple flex items-center justify-center text-white shadow-lg shadow-brand-500/25 shrink-0 border border-white/10">
+              <Brain className="w-6 h-6" />
             </div>
             <div>
-              <h1 className="text-xl font-bold text-slate-900 tracking-tight">Multi-Agent Financial Intelligence</h1>
-              <p className="text-xs text-slate-500">Autonomous 3-agent orchestration council analyzing live PayPal business data</p>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-extrabold text-white tracking-tight">Multi-Agent Financial Intelligence</h1>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/30">
+                  COUNCIL OF 3
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Central AI Orchestrator with parallelized Finance, Collections, and Risk agents operating on real database facts.
+              </p>
             </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2 bg-emerald-50 border border-emerald-200 text-emerald-800 px-3 py-1.5 rounded-lg text-xs font-medium">
-          <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-          <span>Orchestrator Online • 3 Agents Synchronized</span>
+
+          <div className="flex items-center gap-2 bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 px-3.5 py-1.5 rounded-xl text-xs font-semibold">
+            <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+            <span>Orchestrator Online • 3 Agents Synchronized</span>
+          </div>
         </div>
       </div>
 
-      {/* Agent Council Status Bar */}
+      {/* 3 Specialized Agent Telemetry Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Finance Agent Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+        {/* Finance Agent */}
+        <div className="glass-card rounded-2xl p-5 border border-blue-500/20 hover:border-blue-500/40 transition-all space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-blue-500/10 text-blue-400 flex items-center justify-center border border-blue-500/20">
                 <TrendingUp className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Finance Agent</h3>
-                <span className="text-[10px] text-blue-600 font-medium">Revenue & Liquidity</span>
+                <h3 className="text-xs font-bold text-white">Finance Agent</h3>
+                <span className="text-[10px] text-blue-400 font-medium">Revenue & Liquidity</span>
               </div>
             </div>
-            <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">ACTIVE</span>
+            <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              ONLINE
+            </span>
           </div>
-          <p className="text-xs text-slate-600 mb-2">Analyzes revenue trends, linear 7/30d forecasting, and cash-flow deficit warning triggers.</p>
-          <div className="text-[11px] text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 flex items-center gap-1.5">
-            <DollarSign className="w-3 h-3 text-blue-500" />
-            <span>{agents.find(a => a.name.includes('Finance'))?.dataPoints || '4 settled transactions analyzed'}</span>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Computes revenue velocity, runs linear 7/30d incoming forecasts, and raises liquidity deficit warnings.
+          </p>
+          <div className="text-[11px] text-slate-300 bg-dark-900/90 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+            <DollarSign className="w-3.5 h-3.5 text-blue-400" />
+            <span className="font-mono text-[10px]">{agents.find(a => a.name.includes('Finance'))?.dataPoints || '4 transactions analyzed'}</span>
           </div>
         </div>
 
-        {/* Collections Agent Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center font-bold">
+        {/* Collections Agent */}
+        <div className="glass-card rounded-2xl p-5 border border-amber-500/20 hover:border-amber-500/40 transition-all space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-amber-500/10 text-amber-400 flex items-center justify-center border border-amber-500/20">
                 <AlertTriangle className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Collections Agent</h3>
-                <span className="text-[10px] text-amber-600 font-medium">Overdue Recovery</span>
+                <h3 className="text-xs font-bold text-white">Collections Agent</h3>
+                <span className="text-[10px] text-amber-400 font-medium">Debt Recovery</span>
               </div>
             </div>
-            <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">ACTIVE</span>
+            <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              ONLINE
+            </span>
           </div>
-          <p className="text-xs text-slate-600 mb-2">Identifies delinquent invoices, computes delay days, sequences debtors, and drafts notices.</p>
-          <div className="text-[11px] text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 flex items-center gap-1.5">
-            <UserCheck className="w-3 h-3 text-amber-500" />
-            <span>{agents.find(a => a.name.includes('Collections'))?.dataPoints || '3 overdue records monitored'}</span>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Identifies delinquent invoices, computes delay days, sequences debtors by reliability score, and drafts notices.
+          </p>
+          <div className="text-[11px] text-slate-300 bg-dark-900/90 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+            <UserCheck className="w-3.5 h-3.5 text-amber-400" />
+            <span className="font-mono text-[10px]">{agents.find(a => a.name.includes('Collections'))?.dataPoints || '3 overdue records monitored'}</span>
           </div>
         </div>
 
-        {/* Risk Agent Card */}
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm hover:shadow transition-shadow">
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 rounded-lg bg-purple-50 text-purple-600 flex items-center justify-center font-bold">
+        {/* Risk Agent */}
+        <div className="glass-card rounded-2xl p-5 border border-purple-500/20 hover:border-purple-500/40 transition-all space-y-3 relative overflow-hidden">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2.5">
+              <div className="w-9 h-9 rounded-xl bg-accent-purple/10 text-accent-purple flex items-center justify-center border border-accent-purple/20">
                 <ShieldCheck className="w-4 h-4" />
               </div>
               <div>
-                <h3 className="text-sm font-bold text-slate-900">Risk Agent</h3>
-                <span className="text-[10px] text-purple-600 font-medium">Integrity & Audit</span>
+                <h3 className="text-xs font-bold text-white">Risk Agent</h3>
+                <span className="text-[10px] text-purple-400 font-medium">Integrity & Audit</span>
               </div>
             </div>
-            <span className="text-[10px] font-semibold bg-emerald-100 text-emerald-700 px-2 py-0.5 rounded-full">ACTIVE</span>
+            <span className="text-[10px] font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/30 px-2 py-0.5 rounded-full">
+              ONLINE
+            </span>
           </div>
-          <p className="text-xs text-slate-600 mb-2">Audits duplicates, flags high-variance outlier amounts, and isolates unlinked settlements.</p>
-          <div className="text-[11px] text-slate-500 bg-slate-50 px-2.5 py-1 rounded border border-slate-100 flex items-center gap-1.5">
-            <CheckCircle2 className="w-3 h-3 text-purple-500" />
-            <span>{agents.find(a => a.name.includes('Risk'))?.dataPoints || '4 transaction logs audited'}</span>
+          <p className="text-[11px] text-slate-400 leading-relaxed">
+            Audits duplicate orders, flags high-variance outlier amounts, and isolates unlinked settlements without false claims.
+          </p>
+          <div className="text-[11px] text-slate-300 bg-dark-900/90 px-3 py-1.5 rounded-lg border border-slate-800 flex items-center gap-2">
+            <CheckCircle2 className="w-3.5 h-3.5 text-accent-purple" />
+            <span className="font-mono text-[10px]">{agents.find(a => a.name.includes('Risk'))?.dataPoints || '4 transaction logs audited'}</span>
           </div>
         </div>
       </div>
 
-      {/* Suggested Prompt Chips */}
+      {/* Suggested Strategic Queries */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-xs font-semibold text-slate-500 flex items-center gap-1">
-          <Sparkles className="w-3.5 h-3.5 text-brand-500" />
-          Strategic Queries:
+        <span className="text-xs font-bold text-slate-400 flex items-center gap-1.5">
+          <Sparkles className="w-3.5 h-3.5 text-brand-400" />
+          Cross-Agent Strategic Inquiries:
         </span>
         {sampleQueries.map((sq, i) => (
           <button
             key={i}
             onClick={() => handleSend(sq.query)}
             disabled={loading}
-            className="text-xs bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 hover:border-brand-300 px-3 py-1 rounded-full transition-all shadow-sm disabled:opacity-50"
+            className="text-xs bg-dark-850 hover:bg-dark-800 text-slate-300 hover:text-white border border-slate-700/60 px-3.5 py-1.5 rounded-xl transition-all shadow-sm disabled:opacity-50 active:scale-95"
           >
-            {sq.label}
+            {sq.label} →
           </button>
         ))}
       </div>
 
-      {/* Chat & Orchestration Thread */}
-      <div className="bg-white rounded-xl border border-slate-200 shadow-sm overflow-hidden flex flex-col h-[600px]">
-        {/* Messages Container */}
+      {/* Main Orchestration & Conversation Workspace */}
+      <div className="glass-card rounded-2xl border border-slate-800/80 shadow-2xl overflow-hidden flex flex-col h-[650px]">
+        {/* Messages Thread Container */}
         <div className="flex-1 p-6 overflow-y-auto space-y-6">
           {messages.map((msg) => (
             <div key={msg.id} className={`flex flex-col ${msg.sender === 'user' ? 'items-end' : 'items-start'}`}>
               <div className="flex items-center gap-2 mb-1 px-1">
-                <span className="text-[10px] font-bold uppercase tracking-wider text-slate-400">
-                  {msg.sender === 'user' ? 'You' : 'AI Orchestrator'}
+                <span className="text-[9px] font-mono uppercase tracking-wider text-slate-500">
+                  {msg.sender === 'user' ? 'You' : 'Central AI Orchestrator'}
                 </span>
-                <span className="text-[10px] text-slate-400">{msg.timestamp}</span>
+                <span className="text-[9px] font-mono text-slate-500">{msg.timestamp}</span>
               </div>
 
               {msg.sender === 'user' ? (
-                <div className="bg-brand-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-sm max-w-xl shadow-sm">
+                <div className="bg-gradient-to-r from-brand-600 to-indigo-600 text-white rounded-2xl rounded-tr-sm px-4 py-3 text-xs md:text-sm max-w-xl shadow-md border border-white/10 font-medium leading-relaxed">
                   {msg.text}
                 </div>
               ) : (
-                <div className="w-full max-w-4xl bg-slate-50 rounded-2xl rounded-tl-sm border border-slate-200 p-5 space-y-4">
-                  {/* Simple text message */}
+                <div className="w-full max-w-4xl bg-dark-850/95 text-slate-100 rounded-2xl rounded-tl-sm border border-slate-700/70 p-5 space-y-4 shadow-xl">
                   {msg.text && (
-                    <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed">
+                    <div className="text-xs md:text-sm text-slate-200 whitespace-pre-line leading-relaxed">
                       {msg.text}
                     </div>
                   )}
 
-                  {/* Multi-Agent Orchestration Response */}
                   {msg.data && (
                     <div className="space-y-4">
-                      {/* Header: Agents Involved + Execution Timeline Toggle */}
-                      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-white rounded-xl border border-slate-200">
+                      {/* Active Council Header & Execution Timeline Bar */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 p-3 bg-dark-900 rounded-xl border border-slate-800">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-semibold text-slate-700">Agents Involved:</span>
+                          <span className="text-xs font-bold text-slate-300">Agents Involved:</span>
                           <div className="flex items-center gap-1.5 flex-wrap">
                             {msg.data.agentsInvolved.map((agentName, idx) => (
                               <span
                                 key={idx}
-                                className={`text-[11px] font-semibold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
+                                className={`text-[10px] font-bold px-2.5 py-0.5 rounded-full flex items-center gap-1 ${
                                   agentName === 'Finance Agent'
-                                    ? 'bg-blue-50 text-blue-700 border border-blue-200'
+                                    ? 'bg-blue-500/10 text-blue-400 border border-blue-500/30'
                                     : agentName === 'Collections Agent'
-                                    ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                                    : 'bg-purple-50 text-purple-700 border border-purple-200'
+                                    ? 'bg-amber-500/10 text-amber-400 border border-amber-500/30'
+                                    : 'bg-purple-500/10 text-purple-400 border border-purple-500/30'
                                 }`}
                               >
                                 {agentName === 'Finance Agent' && <TrendingUp className="w-3 h-3" />}
@@ -274,14 +294,13 @@ export const MultiAgentPage: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Timeline Toggle */}
                         {msg.data.executionTimeline && (
                           <button
                             onClick={() => setTimelineExpanded(!timelineExpanded)}
-                            className="text-[11px] font-medium text-slate-500 hover:text-slate-800 flex items-center gap-1 bg-slate-50 px-2 py-1 rounded border border-slate-200"
+                            className="text-[10px] font-mono text-slate-400 hover:text-white flex items-center gap-1.5 bg-dark-800 px-2.5 py-1 rounded-lg border border-slate-700/60"
                           >
-                            <Clock className="w-3 h-3 text-brand-500" />
-                            <span>Timeline ({msg.data.executionTimeline.length} steps)</span>
+                            <Clock className="w-3 h-3 text-brand-400" />
+                            <span>Execution Latency ({msg.data.executionTimeline.length} agents)</span>
                             {timelineExpanded ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
                           </button>
                         )}
@@ -289,20 +308,20 @@ export const MultiAgentPage: React.FC = () => {
 
                       {/* Execution Timeline (Collapsible) */}
                       {timelineExpanded && msg.data.executionTimeline && (
-                        <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-2 text-xs">
-                          <h4 className="font-bold text-slate-800 text-[11px] uppercase tracking-wider flex items-center gap-1.5">
-                            <Clock className="w-3.5 h-3.5 text-slate-500" />
-                            Multi-Agent Parallel Execution Trace
+                        <div className="bg-dark-900/90 rounded-xl border border-slate-800 p-4 space-y-2 text-xs">
+                          <h4 className="font-bold text-slate-300 text-[10px] uppercase tracking-wider flex items-center gap-1.5">
+                            <Activity className="w-3.5 h-3.5 text-brand-400" />
+                            Parallel Agent Execution Trace
                           </h4>
-                          <div className="divide-y divide-slate-100">
+                          <div className="divide-y divide-slate-800">
                             {msg.data.executionTimeline.map((step, i) => (
-                              <div key={i} className="py-2 flex items-center justify-between text-slate-600">
+                              <div key={i} className="py-2 flex items-center justify-between text-slate-300">
                                 <div className="flex items-center gap-2">
-                                  <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
-                                  <span className="font-semibold text-slate-800">{step.agent}</span>
-                                  <span className="text-slate-500 text-[11px] truncate max-w-md">{step.summary}</span>
+                                  <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                  <span className="font-bold text-white">{step.agent}</span>
+                                  <span className="text-slate-400 text-[11px] truncate max-w-md">{step.summary}</span>
                                 </div>
-                                <span className="font-mono text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-600">
+                                <span className="font-mono text-[10px] bg-dark-800 px-2 py-0.5 rounded text-brand-300 border border-slate-700/60">
                                   {step.durationMs}ms
                                 </span>
                               </div>
@@ -311,28 +330,29 @@ export const MultiAgentPage: React.FC = () => {
                         </div>
                       )}
 
-                      {/* Combined Executive Analysis */}
-                      <div className="bg-white rounded-xl border border-slate-200 p-5 space-y-3">
-                        <div className="flex items-center gap-2 text-brand-600">
+                      {/* Combined Executive Synthesis */}
+                      <div className="bg-dark-900/95 rounded-xl border border-slate-800 p-5 space-y-3">
+                        <div className="flex items-center gap-2 text-brand-400">
                           <Brain className="w-4 h-4" />
-                          <h3 className="font-bold text-slate-900 text-sm">Orchestrated Cross-Agent Synthesis</h3>
+                          <h3 className="font-bold text-white text-sm">Orchestrated Cross-Agent Synthesis</h3>
                         </div>
-                        <div className="text-xs text-slate-700 whitespace-pre-line leading-relaxed border-l-2 border-brand-500 pl-3">
+                        <div className="text-xs text-slate-300 whitespace-pre-line leading-relaxed border-l-2 border-brand-500 pl-3.5">
                           {msg.data.combinedAnalysis}
                         </div>
                       </div>
 
-                      {/* Deep Agent Findings Tabs */}
-                      <div className="bg-white rounded-xl border border-slate-200 p-4 space-y-4">
-                        <div className="flex items-center justify-between border-b border-slate-100 pb-2">
-                          <h4 className="text-xs font-bold text-slate-800 uppercase tracking-wider">
+                      {/* Agent Findings Tabs */}
+                      <div className="bg-dark-900/95 rounded-xl border border-slate-800 p-4 space-y-4">
+                        <div className="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                          <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <Layers className="w-3.5 h-3.5 text-slate-400" />
                             Specialized Agent Reports
                           </h4>
-                          <div className="flex items-center gap-1 bg-slate-100 p-0.5 rounded-lg text-xs">
+                          <div className="flex items-center gap-1 bg-dark-800 p-0.5 rounded-lg text-xs">
                             <button
                               onClick={() => setActiveAgentTab('all')}
-                              className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                                activeAgentTab === 'all' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-500'
+                              className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                                activeAgentTab === 'all' ? 'bg-brand-600 text-white' : 'text-slate-400 hover:text-white'
                               }`}
                             >
                               All
@@ -340,8 +360,8 @@ export const MultiAgentPage: React.FC = () => {
                             {msg.data.agentFindings.finance && (
                               <button
                                 onClick={() => setActiveAgentTab('finance')}
-                                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                                  activeAgentTab === 'finance' ? 'bg-blue-600 text-white shadow-sm' : 'text-slate-500'
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                                  activeAgentTab === 'finance' ? 'bg-blue-600 text-white' : 'text-slate-400 hover:text-white'
                                 }`}
                               >
                                 Finance
@@ -350,8 +370,8 @@ export const MultiAgentPage: React.FC = () => {
                             {msg.data.agentFindings.collections && (
                               <button
                                 onClick={() => setActiveAgentTab('collections')}
-                                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                                  activeAgentTab === 'collections' ? 'bg-amber-600 text-white shadow-sm' : 'text-slate-500'
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                                  activeAgentTab === 'collections' ? 'bg-amber-600 text-white' : 'text-slate-400 hover:text-white'
                                 }`}
                               >
                                 Collections
@@ -360,8 +380,8 @@ export const MultiAgentPage: React.FC = () => {
                             {msg.data.agentFindings.risk && (
                               <button
                                 onClick={() => setActiveAgentTab('risk')}
-                                className={`px-2.5 py-1 rounded-md text-[11px] font-semibold transition-all ${
-                                  activeAgentTab === 'risk' ? 'bg-purple-600 text-white shadow-sm' : 'text-slate-500'
+                                className={`px-2.5 py-1 rounded-md text-[10px] font-bold transition-all ${
+                                  activeAgentTab === 'risk' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'
                                 }`}
                               >
                                 Risk
@@ -372,47 +392,45 @@ export const MultiAgentPage: React.FC = () => {
 
                         {/* Finance Findings */}
                         {(activeAgentTab === 'all' || activeAgentTab === 'finance') && msg.data.agentFindings.finance && (
-                          <div className="p-4 rounded-xl bg-blue-50/60 border border-blue-100 space-y-3">
+                          <div className="p-4 rounded-xl bg-blue-500/5 border border-blue-500/20 space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-blue-900 flex items-center gap-1.5">
-                                <TrendingUp className="w-3.5 h-3.5 text-blue-600" />
+                              <span className="text-xs font-bold text-blue-300 flex items-center gap-1.5">
+                                <TrendingUp className="w-3.5 h-3.5 text-blue-400" />
                                 Finance Agent Findings
                               </span>
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-blue-100 text-blue-800">
-                                Status: {msg.data.agentFindings.finance.status}
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-blue-500/10 text-blue-300 border border-blue-500/30">
+                                Posture: {msg.data.agentFindings.finance.status}
                               </span>
                             </div>
 
-                            {/* 4 Mini KPI Cards */}
                             <div className="grid grid-cols-2 md:grid-cols-4 gap-2 text-center">
-                              <div className="bg-white p-2 rounded-lg border border-blue-100">
-                                <span className="text-[10px] text-slate-500 block">Settled Revenue</span>
-                                <span className="text-sm font-bold text-slate-900">${msg.data.agentFindings.finance.metrics.totalRevenue.toLocaleString()}</span>
+                              <div className="bg-dark-900 p-2.5 rounded-lg border border-slate-800">
+                                <span className="text-[10px] text-slate-400 block font-medium">Settled Revenue</span>
+                                <span className="text-sm font-extrabold text-white">${msg.data.agentFindings.finance.metrics.totalRevenue.toLocaleString()}</span>
                               </div>
-                              <div className="bg-white p-2 rounded-lg border border-blue-100">
-                                <span className="text-[10px] text-slate-500 block">7-Day Forecast</span>
-                                <span className="text-sm font-bold text-blue-600">${msg.data.agentFindings.finance.metrics.forecastNext7Days.toLocaleString()}</span>
+                              <div className="bg-dark-900 p-2.5 rounded-lg border border-slate-800">
+                                <span className="text-[10px] text-slate-400 block font-medium">7-Day Forecast</span>
+                                <span className="text-sm font-extrabold text-blue-400">${msg.data.agentFindings.finance.metrics.forecastNext7Days.toLocaleString()}</span>
                               </div>
-                              <div className="bg-white p-2 rounded-lg border border-blue-100">
-                                <span className="text-[10px] text-slate-500 block">30-Day Forecast</span>
-                                <span className="text-sm font-bold text-indigo-600">${msg.data.agentFindings.finance.metrics.forecastNext30Days.toLocaleString()}</span>
+                              <div className="bg-dark-900 p-2.5 rounded-lg border border-slate-800">
+                                <span className="text-[10px] text-slate-400 block font-medium">30-Day Forecast</span>
+                                <span className="text-sm font-extrabold text-indigo-400">${msg.data.agentFindings.finance.metrics.forecastNext30Days.toLocaleString()}</span>
                               </div>
-                              <div className="bg-white p-2 rounded-lg border border-blue-100">
-                                <span className="text-[10px] text-slate-500 block">Cash Flow Posture</span>
+                              <div className="bg-dark-900 p-2.5 rounded-lg border border-slate-800">
+                                <span className="text-[10px] text-slate-400 block font-medium">Cash Flow Risk</span>
                                 <span className={`text-xs font-bold ${
-                                  msg.data.agentFindings.finance.metrics.cashFlowHealth === 'DEFICIT_RISK' ? 'text-rose-600' : 'text-emerald-600'
+                                  msg.data.agentFindings.finance.metrics.cashFlowHealth === 'DEFICIT_RISK' ? 'text-rose-400' : 'text-emerald-400'
                                 }`}>
                                   {msg.data.agentFindings.finance.metrics.cashFlowHealth}
                                 </span>
                               </div>
                             </div>
 
-                            {/* Trends */}
-                            <div className="text-xs text-slate-700 space-y-1">
-                              <span className="font-semibold text-slate-800 block text-[11px]">Observed Revenue Trends:</span>
+                            <div className="text-xs text-slate-300 space-y-1">
+                              <span className="font-bold text-white block text-[11px]">Observed Revenue Trends:</span>
                               {msg.data.agentFindings.finance.trends.map((t, idx) => (
-                                <p key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-600">
-                                  <span className="text-blue-500 font-bold">•</span>
+                                <p key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-400">
+                                  <span className="text-blue-400 font-bold">•</span>
                                   <span>{t}</span>
                                 </p>
                               ))}
@@ -422,122 +440,95 @@ export const MultiAgentPage: React.FC = () => {
 
                         {/* Collections Findings */}
                         {(activeAgentTab === 'all' || activeAgentTab === 'collections') && msg.data.agentFindings.collections && (
-                          <div className="p-4 rounded-xl bg-amber-50/60 border border-amber-100 space-y-3">
+                          <div className="p-4 rounded-xl bg-amber-500/5 border border-amber-500/20 space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-amber-900 flex items-center gap-1.5">
-                                <AlertTriangle className="w-3.5 h-3.5 text-amber-600" />
+                              <span className="text-xs font-bold text-amber-300 flex items-center gap-1.5">
+                                <AlertTriangle className="w-3.5 h-3.5 text-amber-400" />
                                 Collections Agent Findings
                               </span>
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-amber-100 text-amber-800">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-amber-500/10 text-amber-300 border border-amber-500/30">
                                 Overdue: ${msg.data.agentFindings.collections.metrics.totalOverdueAmount.toLocaleString()}
                               </span>
                             </div>
 
-                            {/* Prioritized Debtor Table */}
-                            {msg.data.agentFindings.collections.prioritizedCustomers.length > 0 ? (
+                            {msg.data.agentFindings.collections.prioritizedCustomers.length > 0 && (
                               <div className="space-y-2">
-                                <span className="font-semibold text-slate-800 block text-[11px]">
+                                <span className="font-bold text-white block text-[11px]">
                                   Recommended Contact Sequence (Ranked by Debt & Delay):
                                 </span>
                                 <div className="space-y-2">
                                   {msg.data.agentFindings.collections.prioritizedCustomers.map((cust) => (
-                                    <div key={cust.customerId} className="bg-white p-3 rounded-lg border border-amber-200/80 space-y-2">
+                                    <div key={cust.customerId} className="bg-dark-900 p-3 rounded-lg border border-slate-800 space-y-2">
                                       <div className="flex items-center justify-between">
                                         <div className="flex items-center gap-2">
-                                          <span className="w-5 h-5 rounded-full bg-amber-500 text-white text-[10px] font-bold flex items-center justify-center">
+                                          <span className="w-5 h-5 rounded-full bg-amber-500 text-slate-900 text-[10px] font-extrabold flex items-center justify-center">
                                             #{cust.recommendedContactSequence}
                                           </span>
                                           <div>
-                                            <span className="font-bold text-xs text-slate-900">{cust.customerName}</span>
+                                            <span className="font-bold text-xs text-white">{cust.customerName}</span>
                                             <span className="text-[10px] text-slate-400 block">{cust.company}</span>
                                           </div>
                                         </div>
                                         <div className="text-right">
-                                          <span className="text-xs font-bold text-rose-600 block">${cust.totalOverdueAmount.toLocaleString()} overdue</span>
-                                          <span className="text-[10px] text-slate-500 font-medium">{cust.avgDelayDays} days late • Reliability: {cust.reliabilityScore}/100</span>
+                                          <span className="text-xs font-extrabold text-rose-400 block">${cust.totalOverdueAmount.toLocaleString()} overdue</span>
+                                          <span className="text-[10px] text-slate-400 font-medium">{cust.avgDelayDays} days late • Reliability {cust.reliabilityScore}/100</span>
                                         </div>
                                       </div>
 
-                                      {/* Draft reminder preview */}
-                                      <div className="bg-slate-50 p-2.5 rounded border border-slate-200 text-[11px] text-slate-600 space-y-1">
-                                        <div className="flex items-center justify-between text-slate-500 font-medium text-[10px]">
+                                      <div className="bg-dark-950 p-2.5 rounded border border-slate-800 text-[11px] text-slate-400 space-y-1">
+                                        <div className="flex items-center justify-between text-slate-400 font-semibold text-[10px]">
                                           <span className="flex items-center gap-1">
-                                            <Mail className="w-3 h-3 text-brand-500" />
+                                            <Mail className="w-3 h-3 text-brand-400" />
                                             Prepared Reminder Draft
                                           </span>
-                                          <span className="text-emerald-600 font-semibold">Queue in Automation Center</span>
+                                          <span className="text-emerald-400 font-bold">Staged in Automation Center</span>
                                         </div>
-                                        <p className="font-semibold text-slate-700">{cust.draftReminder.subject}</p>
-                                        <p className="italic text-slate-500 truncate">{cust.draftReminder.body.slice(0, 110)}...</p>
+                                        <p className="font-semibold text-slate-200">{cust.draftReminder.subject}</p>
+                                        <p className="italic text-slate-400 truncate">{cust.draftReminder.body.slice(0, 110)}...</p>
                                       </div>
                                     </div>
                                   ))}
                                 </div>
                               </div>
-                            ) : (
-                              <p className="text-xs text-slate-600">Zero active overdue invoices detected.</p>
                             )}
                           </div>
                         )}
 
                         {/* Risk Findings */}
                         {(activeAgentTab === 'all' || activeAgentTab === 'risk') && msg.data.agentFindings.risk && (
-                          <div className="p-4 rounded-xl bg-purple-50/60 border border-purple-100 space-y-3">
+                          <div className="p-4 rounded-xl bg-purple-500/5 border border-purple-500/20 space-y-3">
                             <div className="flex items-center justify-between">
-                              <span className="text-xs font-bold text-purple-900 flex items-center gap-1.5">
-                                <ShieldCheck className="w-3.5 h-3.5 text-purple-600" />
+                              <span className="text-xs font-bold text-purple-300 flex items-center gap-1.5">
+                                <ShieldCheck className="w-3.5 h-3.5 text-purple-400" />
                                 Risk Agent Findings
                               </span>
-                              <span className="text-[10px] font-semibold px-2 py-0.5 rounded bg-purple-100 text-purple-800">
+                              <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-purple-500/10 text-purple-300 border border-purple-500/30">
                                 Posture: {msg.data.agentFindings.risk.metrics.riskPosture}
                               </span>
                             </div>
 
-                            {/* Observations */}
-                            <div className="text-xs text-slate-700 space-y-1">
+                            <div className="text-xs text-slate-300 space-y-1">
                               {msg.data.agentFindings.risk.riskObservations.map((obs, idx) => (
-                                <p key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-600">
-                                  <span className="text-purple-500 font-bold">•</span>
+                                <p key={idx} className="flex items-start gap-1.5 text-[11px] text-slate-400">
+                                  <span className="text-purple-400 font-bold">•</span>
                                   <span>{obs}</span>
                                 </p>
                               ))}
                             </div>
-
-                            {/* Flagged items if any */}
-                            {msg.data.agentFindings.risk.flaggedTransactions.length > 0 && (
-                              <div className="space-y-2 mt-2">
-                                <span className="font-semibold text-slate-800 block text-[11px]">Flagged Anomalies for Verification:</span>
-                                {msg.data.agentFindings.risk.flaggedTransactions.map((flag, idx) => (
-                                  <div key={idx} className="bg-white p-3 rounded-lg border border-purple-200 text-xs space-y-1">
-                                    <div className="flex items-center justify-between">
-                                      <span className="font-bold text-slate-800">{flag.customerName} — ${flag.amount.toLocaleString()}</span>
-                                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-purple-100 text-purple-700">
-                                        {flag.riskLevel}
-                                      </span>
-                                    </div>
-                                    <p className="text-[11px] text-slate-600">{flag.suspicionReason}</p>
-                                    <p className="text-[10px] font-medium text-purple-700 flex items-center gap-1">
-                                      <Info className="w-3 h-3" />
-                                      {flag.recommendedAction}
-                                    </p>
-                                  </div>
-                                ))}
-                              </div>
-                            )}
                           </div>
                         )}
                       </div>
 
                       {/* Recommended Actions */}
                       {msg.data.recommendedActions.length > 0 && (
-                        <div className="bg-gradient-to-r from-brand-50 to-indigo-50 rounded-xl border border-brand-200 p-4 space-y-2">
-                          <h4 className="text-xs font-bold text-brand-900 uppercase tracking-wider flex items-center gap-1.5">
-                            <Zap className="w-3.5 h-3.5 text-brand-600" />
+                        <div className="bg-gradient-to-r from-brand-950/40 via-dark-850 to-dark-900 rounded-xl border border-brand-500/30 p-4 space-y-2">
+                          <h4 className="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                            <Zap className="w-3.5 h-3.5 text-brand-400" />
                             Orchestrator Recommended Action Plan
                           </h4>
                           <div className="space-y-1.5">
                             {msg.data.recommendedActions.map((action, idx) => (
-                              <div key={idx} className="flex items-start gap-2 text-xs text-slate-800 bg-white/70 p-2 rounded-lg border border-brand-100">
+                              <div key={idx} className="flex items-start gap-2 text-xs text-slate-200 bg-dark-900/80 p-2.5 rounded-lg border border-slate-800">
                                 <span className="w-4 h-4 rounded-full bg-brand-600 text-white font-bold text-[10px] flex items-center justify-center shrink-0 mt-0.5">
                                   {idx + 1}
                                 </span>
@@ -556,15 +547,15 @@ export const MultiAgentPage: React.FC = () => {
 
           {loading && (
             <div className="flex items-start gap-3">
-              <div className="p-2 rounded-xl bg-slate-900 text-white animate-spin">
+              <div className="w-8 h-8 rounded-xl bg-dark-800 border border-slate-700 flex items-center justify-center text-brand-400 animate-spin">
                 <Brain className="w-4 h-4" />
               </div>
-              <div className="bg-slate-50 border border-slate-200 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-600 space-y-2">
-                <div className="flex items-center gap-2">
-                  <div className="w-2 h-2 rounded-full bg-brand-600 animate-ping"></div>
-                  <span className="font-semibold text-slate-800">Orchestrator dispatching agents...</span>
+              <div className="bg-dark-850 border border-slate-700 rounded-2xl rounded-tl-sm p-4 text-xs text-slate-400 space-y-2">
+                <div className="flex items-center gap-2 text-white font-semibold">
+                  <div className="w-2 h-2 rounded-full bg-brand-400 animate-ping"></div>
+                  <span>Dispatching multi-agent council in parallel...</span>
                 </div>
-                <div className="text-[11px] text-slate-500 pl-4 space-y-1 border-l border-slate-200">
+                <div className="text-[11px] text-slate-500 pl-4 space-y-1 border-l border-slate-700">
                   <p>• Finance Agent: calculating 7d/30d cash-flow trajectory...</p>
                   <p>• Collections Agent: auditing delinquent accounts and aging...</p>
                   <p>• Risk Agent: scanning duplicate orders and transaction variances...</p>
@@ -576,13 +567,13 @@ export const MultiAgentPage: React.FC = () => {
         </div>
 
         {/* Input Bar */}
-        <div className="p-4 border-t border-slate-200 bg-slate-50/50">
+        <div className="p-4 bg-dark-900/95 border-t border-slate-800/80 shrink-0">
           <form
             onSubmit={(e) => {
               e.preventDefault();
               handleSend();
             }}
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 bg-dark-950 p-1.5 rounded-2xl border border-slate-700/80 focus-within:border-brand-500 focus-within:ring-1 focus-within:ring-brand-500 transition-all shadow-inner"
           >
             <input
               type="text"
@@ -590,12 +581,12 @@ export const MultiAgentPage: React.FC = () => {
               onChange={(e) => setInput(e.target.value)}
               placeholder="Ask the Multi-Agent council (e.g. 'My revenue is declining, find out why and what to do')..."
               disabled={loading}
-              className="flex-1 bg-white border border-slate-300 focus:border-brand-500 focus:ring-1 focus:ring-brand-500 rounded-xl px-4 py-2.5 text-xs text-slate-800 placeholder-slate-400 outline-none transition-all shadow-sm"
+              className="flex-1 bg-transparent px-4 py-2 text-xs md:text-sm text-white placeholder-slate-500 outline-none"
             />
             <button
               type="submit"
               disabled={loading || !input.trim()}
-              className="bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white px-5 py-2.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all shadow-sm shrink-0"
+              className="bg-brand-600 hover:bg-brand-500 disabled:opacity-40 text-white px-5 py-2.5 rounded-xl text-xs font-bold flex items-center gap-2 shadow-lg shadow-brand-600/30 transition-all active:scale-95 shrink-0"
             >
               <Send className="w-3.5 h-3.5" />
               <span>Orchestrate</span>

@@ -139,23 +139,28 @@ export const SmartSettlePage: React.FC = () => {
   return (
     <div className="p-6 max-w-7xl mx-auto space-y-6">
       {/* Page Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-2 border-b border-slate-200">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-slate-800/80">
         <div className="flex items-center gap-3">
-          <div className="p-2.5 rounded-xl bg-gradient-to-tr from-brand-600 to-indigo-600 text-white shadow-md shadow-brand-500/20">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-violet-600 text-white flex items-center justify-center shadow-lg shadow-brand-500/20">
             <Handshake className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 tracking-tight">SmartSettle – AI Payment Negotiator</h1>
-            <p className="text-xs text-slate-500">Autonomous installment negotiation & flexible PayPal settlement management</p>
+            <div className="flex items-center gap-2.5">
+              <h1 className="text-xl font-bold text-white tracking-tight">SmartSettle – AI Payment Negotiator</h1>
+              <span className="text-[10px] font-semibold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/20">
+                Installment Engine
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-0.5">Autonomous installment negotiation & flexible PayPal settlement management</p>
           </div>
         </div>
 
         <div className="flex items-center gap-2">
           <button
             onClick={fetchData}
-            className="bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 px-3 py-2 rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow-sm transition-all"
+            className="bg-dark-900 hover:bg-dark-850 text-slate-200 border border-slate-800 hover:border-slate-700 px-3.5 py-2 rounded-xl text-xs font-semibold flex items-center gap-2 shadow-sm transition-all"
           >
-            <RefreshCw className="w-3.5 h-3.5 text-brand-600" />
+            <RefreshCw className={`w-3.5 h-3.5 text-brand-400 ${loading ? 'animate-spin' : ''}`} />
             <span>Refresh Dashboard</span>
           </button>
         </div>
@@ -163,65 +168,71 @@ export const SmartSettlePage: React.FC = () => {
 
       {/* Notification Toast */}
       {notification && (
-        <div className={`p-3 rounded-xl border flex items-center justify-between text-xs ${
+        <div className={`p-3.5 rounded-xl border flex items-center justify-between text-xs backdrop-blur-md ${
           notification.type === 'success' 
-            ? 'bg-emerald-50 border-emerald-200 text-emerald-800' 
-            : 'bg-rose-50 border-rose-200 text-rose-800'
+            ? 'bg-emerald-950/40 border-emerald-500/30 text-emerald-300' 
+            : 'bg-rose-950/40 border-rose-500/30 text-rose-300'
         }`}>
-          <div className="flex items-center gap-2">
-            {notification.type === 'success' ? <CheckCircle2 className="w-4 h-4 text-emerald-600" /> : <AlertTriangle className="w-4 h-4 text-rose-600" />}
+          <div className="flex items-center gap-2.5">
+            {notification.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0" />
+            )}
             <span>{notification.message}</span>
           </div>
-          <button onClick={() => setNotification(null)} className="text-slate-400 hover:text-slate-600 font-bold">×</button>
+          <button onClick={() => setNotification(null)} className="text-slate-400 hover:text-white font-bold ml-4">×</button>
         </div>
       )}
 
       {/* KPI Cards */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Active Agreements</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-emerald-600">{dashboard?.summary.activeAgreementsCount || 0}</span>
+        <div className="glass-card rounded-2xl border border-slate-800/80 p-4 shadow-sm">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Active Agreements</span>
+          <div className="flex items-baseline gap-2 mt-1.5">
+            <span className="text-2xl font-bold font-mono text-emerald-400">{dashboard?.summary.activeAgreementsCount || 0}</span>
             <span className="text-[11px] text-slate-400 font-medium">
               ${(dashboard?.summary.totalRemaining || 0).toLocaleString()} remaining
             </span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Pending Proposals</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-amber-600">{dashboard?.summary.pendingApprovalCount || 0}</span>
+        <div className="glass-card rounded-2xl border border-slate-800/80 p-4 shadow-sm">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Pending Proposals</span>
+          <div className="flex items-baseline gap-2 mt-1.5">
+            <span className="text-2xl font-bold font-mono text-amber-400">{dashboard?.summary.pendingApprovalCount || 0}</span>
             <span className="text-[11px] text-slate-400">awaiting authorization</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Recovered Capital</span>
-          <div className="flex items-baseline gap-2 mt-1">
-            <span className="text-2xl font-bold text-brand-600">${(dashboard?.summary.totalRecovered || 0).toLocaleString()}</span>
+        <div className="glass-card rounded-2xl border border-slate-800/80 p-4 shadow-sm">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Recovered Capital</span>
+          <div className="flex items-baseline gap-2 mt-1.5">
+            <span className="text-2xl font-bold font-mono text-brand-400">${(dashboard?.summary.totalRecovered || 0).toLocaleString()}</span>
             <span className="text-[11px] text-slate-400">via installments</span>
           </div>
         </div>
 
-        <div className="bg-white rounded-xl border border-slate-200 p-4 shadow-sm">
-          <span className="text-[10px] font-semibold text-slate-500 uppercase tracking-wider block">Instalment Status</span>
-          <div className="flex items-center gap-3 mt-1.5 text-xs font-bold">
-            <span className="text-emerald-600">{dashboard?.summary.completedInstallmentsCount || 0} Paid</span>
-            <span className="text-blue-600">{dashboard?.summary.upcomingInstallmentsCount || 0} Upcoming</span>
-            <span className="text-rose-600">{dashboard?.summary.overdueInstallmentsCount || 0} Overdue</span>
+        <div className="glass-card rounded-2xl border border-slate-800/80 p-4 shadow-sm">
+          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Milestone Health</span>
+          <div className="flex items-center gap-3 mt-2 text-xs font-mono font-semibold">
+            <span className="text-emerald-400">{dashboard?.summary.completedInstallmentsCount || 0} Paid</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-blue-400">{dashboard?.summary.upcomingInstallmentsCount || 0} Due</span>
+            <span className="text-slate-600">•</span>
+            <span className="text-rose-400">{dashboard?.summary.overdueInstallmentsCount || 0} Overdue</span>
           </div>
         </div>
       </div>
 
-      {/* Tabs */}
-      <div className="flex items-center gap-2 border-b border-slate-200">
+      {/* Navigation Tabs */}
+      <div className="flex items-center gap-2 border-b border-slate-800/80 pb-px">
         <button
           onClick={() => setActiveTab('agreements')}
-          className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${
+          className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
             activeTab === 'agreements'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-brand-500 text-brand-400'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <Handshake className="w-3.5 h-3.5" />
@@ -230,10 +241,10 @@ export const SmartSettlePage: React.FC = () => {
 
         <button
           onClick={() => setActiveTab('eligible')}
-          className={`pb-2.5 px-3 text-xs font-bold border-b-2 transition-all flex items-center gap-2 ${
+          className={`pb-3 px-4 text-xs font-semibold border-b-2 transition-all flex items-center gap-2 ${
             activeTab === 'eligible'
-              ? 'border-brand-600 text-brand-600'
-              : 'border-transparent text-slate-500 hover:text-slate-800'
+              ? 'border-brand-500 text-brand-400'
+              : 'border-transparent text-slate-400 hover:text-slate-200'
           }`}
         >
           <FileText className="w-3.5 h-3.5" />
@@ -245,17 +256,17 @@ export const SmartSettlePage: React.FC = () => {
       {activeTab === 'agreements' && (
         <div className="space-y-4">
           {(!dashboard?.agreements || dashboard.agreements.length === 0) ? (
-            <div className="bg-white rounded-xl border border-slate-200 p-12 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-brand-50 text-brand-600 flex items-center justify-center mx-auto">
+            <div className="glass-card rounded-2xl border border-slate-800/80 p-12 text-center space-y-3">
+              <div className="w-12 h-12 rounded-2xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center mx-auto">
                 <Handshake className="w-6 h-6" />
               </div>
-              <h3 className="text-sm font-bold text-slate-800">No Payment Agreements Yet</h3>
-              <p className="text-xs text-slate-500 max-w-md mx-auto">
+              <h3 className="text-sm font-semibold text-white">No Payment Agreements Yet</h3>
+              <p className="text-xs text-slate-400 max-w-md mx-auto">
                 Select an overdue or unpaid invoice from the "Eligible Unpaid Invoices" tab to generate an AI-recommended payment plan or share the customer negotiation link.
               </p>
               <button
                 onClick={() => setActiveTab('eligible')}
-                className="bg-brand-600 hover:bg-brand-700 text-white px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5"
+                className="bg-brand-600 hover:bg-brand-500 text-white px-4 py-2 rounded-xl text-xs font-semibold inline-flex items-center gap-1.5 shadow-md shadow-brand-500/20 transition-all"
               >
                 <span>View Eligible Invoices</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -264,30 +275,32 @@ export const SmartSettlePage: React.FC = () => {
           ) : (
             <div className="grid grid-cols-1 gap-4">
               {dashboard.agreements.map((agr) => (
-                <div key={agr.id} className="bg-white rounded-xl border border-slate-200 p-5 shadow-sm space-y-4">
-                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-100 pb-3">
+                <div key={agr.id} className="glass-card rounded-2xl border border-slate-800/80 p-5 shadow-sm space-y-4">
+                  <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-800/60 pb-3">
                     <div className="flex items-center gap-3">
-                      <div className="w-8 h-8 rounded-lg bg-brand-50 text-brand-600 flex items-center justify-center font-bold text-xs">
+                      <div className="w-9 h-9 rounded-xl bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center font-bold text-xs font-mono">
                         {agr.customerName[0]}
                       </div>
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-slate-900 text-sm">{agr.customerName}</h3>
+                          <h3 className="font-semibold text-white text-sm">{agr.customerName}</h3>
                           <span className="text-[10px] text-slate-400 font-medium">({agr.company || 'Enterprise'})</span>
                         </div>
-                        <span className="text-xs text-slate-500">Invoice: <strong>{agr.invoiceNumber}</strong> • Original: ${agr.originalAmount.toLocaleString()}</span>
+                        <span className="text-xs text-slate-400">
+                          Invoice: <strong className="text-slate-200 font-mono">{agr.invoiceNumber}</strong> • Original: <span className="font-mono">${agr.originalAmount.toLocaleString()}</span>
+                        </span>
                       </div>
                     </div>
 
                     <div className="flex items-center gap-3">
                       <span className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider ${
                         agr.status === 'ACTIVE'
-                          ? 'bg-emerald-100 text-emerald-800 border border-emerald-200'
+                          ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20'
                           : agr.status === 'COMPLETED'
-                          ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                          ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20'
                           : agr.status === 'REJECTED'
-                          ? 'bg-rose-100 text-rose-800 border border-rose-200'
-                          : 'bg-amber-100 text-amber-800 border border-amber-200'
+                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                       }`}>
                         {agr.status.replace('_', ' ')}
                       </span>
@@ -295,7 +308,7 @@ export const SmartSettlePage: React.FC = () => {
                       {/* Customer portal link */}
                       <button
                         onClick={() => copyNegotiationLink(agr.invoiceId)}
-                        className="text-xs text-brand-600 hover:text-brand-700 bg-brand-50 px-2.5 py-1 rounded-lg border border-brand-200 flex items-center gap-1 font-semibold"
+                        className="text-xs text-brand-400 hover:text-brand-300 bg-brand-500/10 hover:bg-brand-500/20 px-3 py-1.5 rounded-xl border border-brand-500/20 flex items-center gap-1.5 font-semibold transition-all"
                       >
                         <Copy className="w-3 h-3" />
                         <span>{copiedLink === agr.invoiceId ? 'Copied Link!' : 'Customer Portal Link'}</span>
@@ -303,57 +316,59 @@ export const SmartSettlePage: React.FC = () => {
                     </div>
                   </div>
 
-                  {/* Agreement Progress */}
-                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-slate-50 p-3 rounded-xl border border-slate-100 text-xs">
+                  {/* Agreement Progress Metrics */}
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-3 bg-dark-950/60 p-3.5 rounded-xl border border-slate-800/80 text-xs">
                     <div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Total Negotiated</span>
-                      <span className="font-bold text-slate-900">${agr.settledAmount.toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-400 block uppercase font-medium">Total Negotiated</span>
+                      <span className="font-bold font-mono text-white text-sm">${agr.settledAmount.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Paid So Far</span>
-                      <span className="font-bold text-emerald-600">${agr.paidAmount.toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-400 block uppercase font-medium">Paid So Far</span>
+                      <span className="font-bold font-mono text-emerald-400 text-sm">${agr.paidAmount.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Remaining Balance</span>
-                      <span className="font-bold text-rose-600">${agr.remainingBalance.toLocaleString()}</span>
+                      <span className="text-[10px] text-slate-400 block uppercase font-medium">Remaining Balance</span>
+                      <span className="font-bold font-mono text-rose-400 text-sm">${agr.remainingBalance.toLocaleString()}</span>
                     </div>
                     <div>
-                      <span className="text-[10px] text-slate-400 block font-medium">Milestones</span>
-                      <span className="font-semibold text-slate-800">{agr.installmentsCount} Parts Scheduled</span>
+                      <span className="text-[10px] text-slate-400 block uppercase font-medium">Milestones</span>
+                      <span className="font-semibold text-slate-200 text-sm">{agr.installmentsCount} Parts Scheduled</span>
                     </div>
                   </div>
 
                   {/* AI Rationale */}
                   {agr.aiAnalysis && (
-                    <div className="bg-brand-50/50 border border-brand-100 p-3 rounded-xl text-xs text-brand-900 flex items-start gap-2">
-                      <Sparkles className="w-4 h-4 text-brand-600 shrink-0 mt-0.5" />
+                    <div className="bg-indigo-950/30 border border-indigo-500/30 p-3.5 rounded-xl text-xs text-indigo-200 flex items-start gap-2.5">
+                      <Sparkles className="w-4 h-4 text-indigo-400 shrink-0 mt-0.5" />
                       <div className="leading-relaxed">
-                        <span className="font-bold">AI Rationale: </span>
+                        <span className="font-semibold text-indigo-300">AI Rationale: </span>
                         {agr.aiAnalysis}
                       </div>
                     </div>
                   )}
 
                   {/* Installments Table */}
-                  <div className="space-y-1.5">
-                    <span className="text-[11px] font-bold text-slate-700 uppercase tracking-wider block">Installment Milestone Ledger</span>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2">
+                  <div className="space-y-2">
+                    <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-wider block">Installment Milestone Ledger</span>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
                       {agr.installments.map((inst) => (
-                        <div key={inst.id} className={`p-3 rounded-xl border text-xs space-y-1 ${
+                        <div key={inst.id} className={`p-3 rounded-xl border text-xs space-y-1.5 ${
                           inst.status === 'COMPLETED'
-                            ? 'bg-emerald-50/50 border-emerald-200'
-                            : 'bg-white border-slate-200'
+                            ? 'bg-emerald-950/20 border-emerald-500/30'
+                            : 'bg-dark-950/60 border-slate-800/80'
                         }`}>
                           <div className="flex items-center justify-between">
-                            <span className="font-bold text-slate-800">Part #{inst.installmentNumber}</span>
+                            <span className="font-semibold text-slate-200">Part #{inst.installmentNumber}</span>
                             <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
-                              inst.status === 'COMPLETED' ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-100 text-slate-600'
+                              inst.status === 'COMPLETED' 
+                                ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' 
+                                : 'bg-slate-800 text-slate-300'
                             }`}>
                               {inst.status}
                             </span>
                           </div>
-                          <div className="text-base font-extrabold text-slate-900">${inst.amount.toFixed(2)}</div>
-                          <span className="text-[11px] text-slate-500 block">Due: {inst.dueDate}</span>
+                          <div className="text-base font-bold font-mono text-white">${inst.amount.toFixed(2)}</div>
+                          <span className="text-[11px] text-slate-400 block font-mono">Due: {inst.dueDate}</span>
                         </div>
                       ))}
                     </div>
@@ -361,17 +376,17 @@ export const SmartSettlePage: React.FC = () => {
 
                   {/* Pending Approval Action Bar */}
                   {agr.status === 'PENDING_APPROVAL' && (
-                    <div className="flex items-center justify-end gap-2 pt-3 border-t border-slate-100">
+                    <div className="flex items-center justify-end gap-2.5 pt-3 border-t border-slate-800/60">
                       <button
                         onClick={() => handleReject(agr.id)}
-                        className="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-rose-600 hover:bg-rose-50 border border-slate-200 flex items-center gap-1.5 transition-all"
+                        className="px-3.5 py-2 rounded-xl text-xs font-semibold text-slate-300 hover:text-rose-400 hover:bg-rose-500/10 border border-slate-800 hover:border-rose-500/30 flex items-center gap-1.5 transition-all"
                       >
                         <XCircle className="w-3.5 h-3.5" />
                         <span>Decline Arrangement</span>
                       </button>
                       <button
                         onClick={() => handleApprove(agr.id)}
-                        className="px-4 py-1.5 rounded-lg text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-700 flex items-center gap-1.5 shadow-sm transition-all"
+                        className="px-4 py-2 rounded-xl text-xs font-semibold text-white bg-emerald-600 hover:bg-emerald-500 flex items-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all"
                       >
                         <CheckCircle className="w-3.5 h-3.5" />
                         <span>Approve & Activate Plan</span>
@@ -387,20 +402,20 @@ export const SmartSettlePage: React.FC = () => {
 
       {/* Tab 2: Eligible Invoices */}
       {activeTab === 'eligible' && (
-        <div className="bg-white rounded-xl border border-slate-200 overflow-hidden shadow-sm">
-          <div className="p-4 border-b border-slate-200 flex items-center justify-between">
+        <div className="glass-card rounded-2xl border border-slate-800/80 overflow-hidden shadow-sm">
+          <div className="p-4 border-b border-slate-800/80 flex items-center justify-between">
             <div>
-              <h3 className="text-sm font-bold text-slate-900">Invoices Eligible for SmartSettle Negotiation</h3>
-              <p className="text-xs text-slate-500">Unpaid or past-due receivables that can be converted into flexible PayPal installment plans</p>
+              <h3 className="text-sm font-semibold text-white">Invoices Eligible for SmartSettle Negotiation</h3>
+              <p className="text-xs text-slate-400 mt-0.5">Unpaid or past-due receivables ready to be converted into flexible PayPal milestone plans</p>
             </div>
-            <span className="text-xs font-mono bg-slate-100 px-2 py-1 rounded text-slate-600">
+            <span className="text-xs font-mono bg-dark-950 px-2.5 py-1 rounded-lg border border-slate-800 text-slate-300">
               {eligibleInvoices.length} accounts
             </span>
           </div>
 
           <div className="overflow-x-auto">
             <table className="w-full text-left text-xs">
-              <thead className="bg-slate-50 text-slate-500 uppercase text-[10px] font-semibold border-b border-slate-200">
+              <thead className="bg-dark-950/80 text-slate-400 uppercase text-[10px] font-semibold border-b border-slate-800">
                 <tr>
                   <th className="px-4 py-3">Invoice</th>
                   <th className="px-4 py-3">Customer</th>
@@ -410,41 +425,43 @@ export const SmartSettlePage: React.FC = () => {
                   <th className="px-4 py-3 text-right">Actions</th>
                 </tr>
               </thead>
-              <tbody className="divide-y divide-slate-100">
+              <tbody className="divide-y divide-slate-800/60">
                 {eligibleInvoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-slate-50/50">
-                    <td className="px-4 py-3 font-semibold text-slate-900">{inv.invoiceNumber}</td>
+                  <tr key={inv.id} className="hover:bg-slate-800/30 transition-colors">
+                    <td className="px-4 py-3 font-mono font-semibold text-white">{inv.invoiceNumber}</td>
                     <td className="px-4 py-3">
-                      <span className="font-bold text-slate-800 block">{inv.customer.name}</span>
-                      <span className="text-[11px] text-slate-500">{inv.customer.company}</span>
+                      <span className="font-semibold text-slate-200 block">{inv.customer.name}</span>
+                      <span className="text-[11px] text-slate-400">{inv.customer.company}</span>
                     </td>
-                    <td className="px-4 py-3 font-extrabold text-slate-900">${inv.total.toLocaleString()}</td>
+                    <td className="px-4 py-3 font-mono font-bold text-white">${inv.total.toLocaleString()}</td>
                     <td className="px-4 py-3">
                       <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                        inv.daysOverdue > 0 ? 'bg-rose-100 text-rose-800' : 'bg-amber-100 text-amber-800'
+                        inv.daysOverdue > 0 
+                          ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' 
+                          : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                       }`}>
                         {inv.daysOverdue > 0 ? `${inv.daysOverdue}d overdue` : `Due ${inv.dueDate}`}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-slate-600 text-[11px]">
+                    <td className="px-4 py-3 text-slate-400 text-[11px]">
                       {inv.customer.totalSettledPast > 0 ? (
-                        <span className="text-emerald-700 font-medium">Settled ${inv.customer.totalSettledPast.toLocaleString()} across {inv.customer.ordersCount} orders</span>
+                        <span className="text-emerald-400 font-medium">Settled ${inv.customer.totalSettledPast.toLocaleString()} across {inv.customer.ordersCount} orders</span>
                       ) : (
-                        <span className="text-slate-400">First-time client</span>
+                        <span className="text-slate-500">First-time client</span>
                       )}
                     </td>
                     <td className="px-4 py-3 text-right space-x-2">
                       <button
                         onClick={() => copyNegotiationLink(inv.id)}
                         title="Copy Customer Negotiation URL"
-                        className="p-1.5 rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-100 transition-all inline-flex items-center gap-1 text-[11px] font-semibold"
+                        className="px-2.5 py-1.5 rounded-lg border border-slate-800 hover:border-slate-700 bg-dark-950 text-slate-300 hover:text-white transition-all inline-flex items-center gap-1.5 text-[11px] font-semibold"
                       >
-                        <Copy className="w-3 h-3 text-brand-600" />
+                        <Copy className="w-3 h-3 text-brand-400" />
                         <span>{copiedLink === inv.id ? 'Copied!' : 'Portal Link'}</span>
                       </button>
                       <button
                         onClick={() => handleOpenGenerator(inv)}
-                        className="bg-brand-600 hover:bg-brand-700 text-white px-3 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1 shadow-sm transition-all"
+                        className="bg-brand-600 hover:bg-brand-500 text-white px-3 py-1.5 rounded-lg text-xs font-semibold inline-flex items-center gap-1.5 shadow-md shadow-brand-500/20 transition-all"
                       >
                         <Sparkles className="w-3 h-3" />
                         <span>Generate AI Plan</span>
@@ -460,27 +477,29 @@ export const SmartSettlePage: React.FC = () => {
 
       {/* AI Plan Generator Modal */}
       {selectedInvoice && (
-        <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-xl border border-slate-200">
-            <div className="flex items-center justify-between border-b border-slate-100 pb-3">
-              <div className="flex items-center gap-2">
-                <Sparkles className="w-5 h-5 text-brand-600" />
+        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+          <div className="bg-dark-900 rounded-2xl max-w-xl w-full p-6 space-y-4 shadow-2xl border border-slate-800">
+            <div className="flex items-center justify-between border-b border-slate-800 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center">
+                  <Sparkles className="w-4 h-4" />
+                </div>
                 <div>
-                  <h3 className="font-bold text-slate-900 text-sm">SmartSettle AI Plan Generator</h3>
-                  <span className="text-xs text-slate-500">Invoice {selectedInvoice.invoiceNumber} for {selectedInvoice.customer.name} (${selectedInvoice.total.toLocaleString()})</span>
+                  <h3 className="font-semibold text-white text-sm">SmartSettle AI Plan Generator</h3>
+                  <span className="text-xs text-slate-400">Invoice {selectedInvoice.invoiceNumber} for {selectedInvoice.customer.name} (${selectedInvoice.total.toLocaleString()})</span>
                 </div>
               </div>
-              <button onClick={() => setSelectedInvoice(null)} className="text-slate-400 hover:text-slate-600 font-bold">×</button>
+              <button onClick={() => setSelectedInvoice(null)} className="text-slate-400 hover:text-white text-lg font-bold">×</button>
             </div>
 
             <div className="space-y-4 text-xs">
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Number of Milestones</label>
+                  <label className="font-semibold text-slate-300 block mb-1">Number of Milestones</label>
                   <select
                     value={installmentsCount}
                     onChange={(e) => setInstallmentsCount(parseInt(e.target.value, 10))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none font-semibold text-slate-800"
+                    className="w-full bg-dark-950 border border-slate-800 rounded-xl p-2.5 outline-none font-medium text-slate-200 focus:border-brand-500"
                   >
                     <option value={2}>2 Installments</option>
                     <option value={3}>3 Installments</option>
@@ -489,11 +508,11 @@ export const SmartSettlePage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="font-bold text-slate-700 block mb-1">Total Extension Horizon</label>
+                  <label className="font-semibold text-slate-300 block mb-1">Total Extension Horizon</label>
                   <select
                     value={extensionDays}
                     onChange={(e) => setExtensionDays(parseInt(e.target.value, 10))}
-                    className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none font-semibold text-slate-800"
+                    className="w-full bg-dark-950 border border-slate-800 rounded-xl p-2.5 outline-none font-medium text-slate-200 focus:border-brand-500"
                   >
                     <option value={15}>15 Days</option>
                     <option value={30}>30 Days</option>
@@ -504,19 +523,19 @@ export const SmartSettlePage: React.FC = () => {
               </div>
 
               <div>
-                <label className="font-bold text-slate-700 block mb-1">Customer / Hardship Context</label>
+                <label className="font-semibold text-slate-300 block mb-1">Customer / Hardship Context</label>
                 <input
                   type="text"
                   value={hardshipReason}
                   onChange={(e) => setHardshipReason(e.target.value)}
-                  className="w-full bg-slate-50 border border-slate-200 rounded-lg p-2.5 outline-none text-slate-800"
+                  className="w-full bg-dark-950 border border-slate-800 rounded-xl p-2.5 outline-none text-slate-200 focus:border-brand-500"
                 />
               </div>
 
               <button
                 onClick={handleGenerateProposal}
                 disabled={generating}
-                className="w-full bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-2"
+                className="w-full bg-brand-600 hover:bg-brand-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-2 shadow-md shadow-brand-500/20 transition-all"
               >
                 <Sparkles className="w-4 h-4" />
                 <span>{generating ? 'AI Analyzing Terms...' : 'Calculate AI Plan Proposal'}</span>
@@ -524,24 +543,24 @@ export const SmartSettlePage: React.FC = () => {
 
               {/* Proposal Preview */}
               {proposal && (
-                <div className="bg-slate-50 border border-brand-200 p-4 rounded-xl space-y-3">
+                <div className="bg-dark-950 border border-brand-500/30 p-4 rounded-xl space-y-3">
                   <div className="flex items-center justify-between">
-                    <span className="font-bold text-slate-900">Recommended Plan ({proposal.installmentsCount} Parts)</span>
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-brand-100 text-brand-800">
+                    <span className="font-semibold text-white">Recommended Plan ({proposal.installmentsCount} Parts)</span>
+                    <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-brand-500/20 text-brand-300 border border-brand-500/30">
                       Score: {proposal.suitabilityScore}/100
                     </span>
                   </div>
 
-                  <p className="text-[11px] text-slate-600 italic bg-white p-2.5 rounded border border-slate-200">
+                  <p className="text-[11px] text-slate-300 italic bg-dark-900 p-2.5 rounded-lg border border-slate-800">
                     "{proposal.aiExplanation}"
                   </p>
 
                   <div className="grid grid-cols-3 gap-2">
                     {proposal.installments.map((inst: any) => (
-                      <div key={inst.installmentNumber} className="bg-white p-2 rounded-lg border border-slate-200 text-center">
-                        <span className="text-[10px] text-slate-400 block font-bold">Part #{inst.installmentNumber}</span>
-                        <span className="text-sm font-bold text-slate-900">${inst.amount.toFixed(2)}</span>
-                        <span className="text-[10px] text-slate-500 block">{inst.dueDate}</span>
+                      <div key={inst.installmentNumber} className="bg-dark-900 p-2.5 rounded-lg border border-slate-800 text-center">
+                        <span className="text-[10px] text-slate-400 block font-semibold">Part #{inst.installmentNumber}</span>
+                        <span className="text-sm font-bold font-mono text-white">${inst.amount.toFixed(2)}</span>
+                        <span className="text-[10px] text-slate-400 block font-mono">{inst.dueDate}</span>
                       </div>
                     ))}
                   </div>
@@ -549,7 +568,7 @@ export const SmartSettlePage: React.FC = () => {
                   <button
                     onClick={handleSubmitAgreement}
                     disabled={submitting}
-                    className="w-full bg-emerald-600 hover:bg-emerald-700 disabled:opacity-50 text-white py-2.5 rounded-xl font-bold flex items-center justify-center gap-1.5 shadow-sm"
+                    className="w-full bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white py-2.5 rounded-xl font-semibold flex items-center justify-center gap-1.5 shadow-md shadow-emerald-500/20 transition-all"
                   >
                     <CheckCircle className="w-4 h-4" />
                     <span>Stage Plan in SmartSettle Dashboard</span>

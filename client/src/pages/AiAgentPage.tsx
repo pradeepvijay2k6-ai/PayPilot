@@ -12,29 +12,38 @@ export const AiAgentPage: React.FC<AiAgentPageProps> = ({
   onNavigateToInvoice
 }) => {
   return (
-    <div className="p-8 max-w-6xl mx-auto space-y-6">
-      {/* Intro Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 bg-gradient-to-r from-navy-900 to-slate-900 text-white p-6 rounded-2xl border border-slate-800 shadow-md">
-        <div className="flex items-center gap-4">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-paypal-lightBlue flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
-            <Bot className="w-6 h-6" />
-          </div>
-          <div>
-            <h2 className="text-lg font-bold">Autonomous Financial Operations Agent</h2>
-            <p className="text-xs text-slate-300 mt-0.5">
-              Powered by real-time database calculations & PayPal Sandbox REST APIs.
-            </p>
-          </div>
-        </div>
+    <div className="p-6 md:p-8 max-w-6xl mx-auto space-y-6">
+      {/* Hero Intro Header */}
+      <div className="relative overflow-hidden rounded-2xl bg-gradient-to-r from-dark-900 via-dark-850 to-dark-900 border border-slate-800/80 p-6 shadow-2xl">
+        <div className="absolute top-0 right-0 w-80 h-80 bg-brand-600/10 rounded-full blur-3xl pointer-events-none"></div>
 
-        <div className="flex items-center gap-3 text-xs text-slate-300">
-          <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <span>Explicit Approval Guard</span>
+        <div className="relative z-10 flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-accent-purple flex items-center justify-center text-white shadow-lg shadow-brand-500/25 shrink-0 border border-white/10">
+              <Bot className="w-6 h-6" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <h1 className="text-xl font-extrabold text-white tracking-tight">AI Command Center</h1>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-brand-500/10 text-brand-400 border border-brand-500/30">
+                  HERO AGENT
+                </span>
+              </div>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Execute natural language financial workflows, create invoices, draft reminder notices, and query database intelligence.
+              </p>
+            </div>
           </div>
-          <div className="flex items-center gap-1.5 bg-white/10 px-3 py-1.5 rounded-lg border border-white/10">
-            <Zap className="w-4 h-4 text-paypal-gold" />
-            <span>PayPal Sandbox Active</span>
+
+          <div className="flex items-center gap-2.5 text-xs">
+            <div className="flex items-center gap-1.5 bg-dark-800/90 px-3 py-1.5 rounded-xl border border-slate-700/60 text-slate-300">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <span>Explicit Approval Guard</span>
+            </div>
+            <div className="flex items-center gap-1.5 bg-dark-800/90 px-3 py-1.5 rounded-xl border border-slate-700/60 text-slate-300">
+              <Zap className="w-4 h-4 text-paypal-gold" />
+              <span>PayPal Orders v2</span>
+            </div>
           </div>
         </div>
       </div>

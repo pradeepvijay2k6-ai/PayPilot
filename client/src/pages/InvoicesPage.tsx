@@ -74,15 +74,15 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
   return (
     <div className="p-8 max-w-7xl mx-auto space-y-6">
       {/* Controls Bar */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white p-4 rounded-2xl border border-slate-200/80 shadow-xs">
+      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 glass-card p-4 rounded-2xl border border-slate-800/80 shadow-xs">
         <form onSubmit={handleSearchSubmit} className="relative w-full sm:w-80">
-          <Search className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+          <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
           <input
             type="text"
             placeholder="Search invoice number or customer..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full pl-9 pr-4 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs text-slate-800 placeholder-slate-400 focus:outline-hidden focus:ring-2 focus:ring-brand-500/20"
+            className="w-full pl-9 pr-4 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-500 focus:outline-hidden focus:border-brand-500 transition-colors"
           />
         </form>
 
@@ -93,8 +93,8 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
               onClick={() => setStatusFilter(st)}
               className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                 statusFilter === st
-                  ? 'bg-slate-900 text-white shadow-xs'
-                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                  ? 'bg-brand-600 text-white shadow-md shadow-brand-500/20'
+                  : 'bg-dark-950 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
               }`}
             >
               {st}
@@ -102,7 +102,7 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
           ))}
           <button
             onClick={onOpenCreateInvoice}
-            className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow-sm shadow-brand-600/30 ml-2 shrink-0 active:scale-95"
+            className="flex items-center gap-1.5 px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white text-xs font-bold rounded-xl shadow-md shadow-brand-500/20 ml-2 shrink-0 active:scale-95 transition-all"
           >
             <Plus className="w-4 h-4" />
             <span>New Invoice</span>
@@ -111,10 +111,10 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
       </div>
 
       {/* Invoices Table */}
-      <div className="bg-white rounded-2xl border border-slate-200/80 shadow-xs overflow-hidden">
+      <div className="glass-card rounded-2xl border border-slate-800/80 shadow-xs overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-xs">
-            <thead className="bg-slate-50/70 border-b border-slate-200/80 text-slate-500 uppercase font-semibold text-[11px] tracking-wider">
+            <thead className="bg-dark-950/80 border-b border-slate-800 text-slate-400 uppercase font-semibold text-[10px] tracking-wider">
               <tr>
                 <th className="py-3.5 px-6">Invoice #</th>
                 <th className="py-3.5 px-6">Customer</th>
@@ -125,48 +125,48 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                 <th className="py-3.5 px-6 text-right">Actions</th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-slate-100">
+            <tbody className="divide-y divide-slate-800/60">
               {loading ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-10 text-slate-400">Loading invoices...</td>
+                  <td colSpan={7} className="text-center py-10 text-slate-500 font-medium">Loading invoices...</td>
                 </tr>
               ) : invoices.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="text-center py-10 text-slate-400">No invoices match your criteria.</td>
+                  <td colSpan={7} className="text-center py-10 text-slate-500 font-medium">No invoices match your criteria.</td>
                 </tr>
               ) : (
                 invoices.map((inv) => (
-                  <tr key={inv.id} className="hover:bg-slate-50/80 transition-colors">
-                    <td className="py-4 px-6 font-mono font-bold text-slate-900">
+                  <tr key={inv.id} className="hover:bg-slate-800/30 transition-colors">
+                    <td className="py-4 px-6 font-mono font-bold text-white">
                       {inv.invoiceNumber}
                     </td>
                     <td className="py-4 px-6">
-                      <p className="font-semibold text-slate-800">{inv.customer.name}</p>
+                      <p className="font-semibold text-slate-200">{inv.customer.name}</p>
                       <p className="text-[11px] text-slate-400">{inv.customer.company || inv.customer.email}</p>
                     </td>
-                    <td className="py-4 px-6 text-slate-600">
-                      <p>{new Date(inv.issueDate).toLocaleDateString()}</p>
-                      <p className="text-[11px] text-slate-400">Due {new Date(inv.dueDate).toLocaleDateString()}</p>
+                    <td className="py-4 px-6 text-slate-300">
+                      <p className="font-mono">{new Date(inv.issueDate).toLocaleDateString()}</p>
+                      <p className="text-[11px] text-slate-500 font-mono">Due {new Date(inv.dueDate).toLocaleDateString()}</p>
                     </td>
-                    <td className="py-4 px-6 font-mono font-extrabold text-slate-900">
+                    <td className="py-4 px-6 font-mono font-bold text-white">
                       ${inv.total.toFixed(2)} USD
                     </td>
                     <td className="py-4 px-6">
                       <span className={`px-2.5 py-1 rounded-full text-[10px] font-bold ${
-                        inv.status === 'PAID' ? 'bg-emerald-100 text-emerald-800' :
-                        inv.status === 'OVERDUE' ? 'bg-rose-100 text-rose-800' :
-                        inv.status === 'SENT' ? 'bg-blue-100 text-blue-800' : 'bg-amber-100 text-amber-800'
+                        inv.status === 'PAID' ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' :
+                        inv.status === 'OVERDUE' ? 'bg-rose-500/10 text-rose-400 border border-rose-500/20' :
+                        inv.status === 'SENT' ? 'bg-blue-500/10 text-blue-400 border border-blue-500/20' : 'bg-amber-500/10 text-amber-400 border border-amber-500/20'
                       }`}>
                         {inv.status}
                       </span>
                     </td>
                     <td className="py-4 px-6">
                       {inv.paypalInvoiceId ? (
-                        <span className="font-mono text-[10px] bg-slate-100 px-2 py-0.5 rounded text-slate-700 border border-slate-200">
+                        <span className="font-mono text-[10px] bg-dark-950 px-2 py-0.5 rounded text-slate-300 border border-slate-800">
                           {inv.paypalInvoiceId.substring(0, 12)}...
                         </span>
                       ) : (
-                        <span className="text-slate-400 text-[11px]">—</span>
+                        <span className="text-slate-600 text-[11px]">—</span>
                       )}
                     </td>
                     <td className="py-4 px-6 text-right">
@@ -174,7 +174,7 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                         <button
                           onClick={() => handleOpenPreview(inv)}
                           title="Preview & Details"
-                          className="p-1.5 text-slate-500 hover:text-brand-600 hover:bg-brand-50 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-400 hover:text-brand-400 hover:bg-brand-500/10 rounded-lg transition-colors"
                         >
                           <Eye className="w-4 h-4" />
                         </button>
@@ -184,7 +184,7 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                             target="_blank"
                             rel="noreferrer"
                             title="Open Customer Checkout Page"
-                            className="p-1.5 text-slate-500 hover:text-paypal-blue hover:bg-blue-50 rounded-lg transition-colors"
+                            className="p-1.5 text-slate-400 hover:text-blue-400 hover:bg-blue-500/10 rounded-lg transition-colors"
                           >
                             <CreditCard className="w-4 h-4" />
                           </a>
@@ -192,7 +192,7 @@ export const InvoicesPage: React.FC<InvoicesPageProps> = ({ onOpenCreateInvoice 
                         <button
                           onClick={() => handleDelete(inv.id)}
                           title="Delete"
-                          className="p-1.5 text-slate-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-colors"
+                          className="p-1.5 text-slate-500 hover:text-rose-400 hover:bg-rose-500/10 rounded-lg transition-colors"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

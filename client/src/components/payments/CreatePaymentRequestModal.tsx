@@ -64,59 +64,59 @@ export const CreatePaymentRequestModal: React.FC<CreatePaymentRequestModalProps>
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 backdrop-blur-xs p-4">
-      <div className="bg-white rounded-2xl max-w-md w-full border border-slate-200 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
-        <div className="px-6 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-50">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-paypal-blue/10 text-paypal-blue flex items-center justify-center font-bold">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 backdrop-blur-sm p-4">
+      <div className="bg-dark-900 rounded-2xl max-w-md w-full border border-slate-800 shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+        <div className="px-6 py-4 border-b border-slate-800 flex items-center justify-between bg-dark-950">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-brand-500/10 text-brand-400 border border-brand-500/20 flex items-center justify-center font-bold">
               <Send className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-bold text-slate-900 text-sm">Create Payment Request</h3>
-              <p className="text-[11px] text-slate-500">Generate a direct PayPal checkout link</p>
+              <h3 className="font-semibold text-white text-sm">Create Payment Request</h3>
+              <p className="text-[11px] text-slate-400">Generate a direct PayPal checkout link</p>
             </div>
           </div>
-          <button onClick={onClose} className="p-1 text-slate-400 hover:text-slate-600 rounded-lg">
+          <button onClick={onClose} className="p-1 text-slate-400 hover:text-white rounded-lg">
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {createdUrl ? (
           <div className="p-6 space-y-4 text-center">
-            <div className="w-12 h-12 bg-emerald-100 text-emerald-600 rounded-full flex items-center justify-center mx-auto">
+            <div className="w-12 h-12 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-full flex items-center justify-center mx-auto">
               <Check className="w-6 h-6" />
             </div>
             <div>
-              <h4 className="font-bold text-slate-900 text-base">Payment Request Ready!</h4>
-              <p className="text-xs text-slate-500 mt-1">
+              <h4 className="font-semibold text-white text-base">Payment Request Ready!</h4>
+              <p className="text-xs text-slate-400 mt-1">
                 Share this direct payment link with your customer to pay via PayPal Sandbox:
               </p>
             </div>
 
-            <div className="flex items-center gap-2 bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs font-mono text-slate-700 truncate">
+            <div className="flex items-center gap-2 bg-dark-950 border border-slate-800 rounded-xl p-2 text-xs font-mono text-slate-300 truncate">
               <span className="truncate flex-1 text-left">{createdUrl}</span>
               <button
                 onClick={handleCopy}
-                className="px-2.5 py-1 bg-white border border-slate-200 text-slate-700 hover:bg-slate-100 rounded text-xs font-sans font-semibold flex items-center gap-1 shrink-0"
+                className="px-2.5 py-1 bg-dark-900 border border-slate-700 text-slate-200 hover:text-white hover:bg-slate-800 rounded-lg text-xs font-sans font-semibold flex items-center gap-1 shrink-0 transition-all"
               >
-                {copied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
+                {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
                 <span>{copied ? 'Copied' : 'Copy'}</span>
               </button>
             </div>
 
-            <div className="pt-2 flex justify-center gap-2">
+            <div className="pt-2 flex justify-center gap-2.5">
               <a
                 href={createdUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 bg-brand-600 hover:bg-brand-700 text-white rounded-lg text-xs font-bold flex items-center gap-1.5 shadow-sm"
+                className="px-4 py-2 bg-brand-600 hover:bg-brand-500 text-white rounded-xl text-xs font-bold flex items-center gap-1.5 shadow-md shadow-brand-500/20 transition-all"
               >
                 <span>Open Checkout Portal</span>
                 <ExternalLink className="w-3.5 h-3.5" />
               </a>
               <button
                 onClick={onClose}
-                className="px-4 py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg text-xs font-semibold"
+                className="px-4 py-2 bg-dark-950 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 rounded-xl text-xs font-semibold transition-all"
               >
                 Close
               </button>
@@ -125,11 +125,11 @@ export const CreatePaymentRequestModal: React.FC<CreatePaymentRequestModalProps>
         ) : (
           <form onSubmit={handleSubmit} className="p-6 space-y-4">
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Customer</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Customer</label>
               <select
                 value={selectedCustomerId}
                 onChange={(e) => setSelectedCustomerId(e.target.value)}
-                className="w-full bg-slate-50 border border-slate-200 rounded-lg px-3 py-2 text-xs font-medium text-slate-800"
+                className="w-full bg-dark-950 border border-slate-800 rounded-xl px-3 py-2 text-xs font-medium text-slate-200 outline-none focus:border-brand-500"
                 required
               >
                 {customers.map((c) => (
@@ -141,44 +141,44 @@ export const CreatePaymentRequestModal: React.FC<CreatePaymentRequestModalProps>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Amount (USD)</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Amount (USD)</label>
               <div className="relative">
-                <span className="absolute left-3 top-2.5 text-slate-400 text-xs font-bold">$</span>
+                <span className="absolute left-3 top-2.5 text-slate-500 text-xs font-bold">$</span>
                 <input
                   type="number"
                   step="0.01"
                   min="1"
                   value={amount}
                   onChange={(e) => setAmount(e.target.value)}
-                  className="w-full pl-7 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs font-mono font-bold text-slate-900"
+                  className="w-full pl-7 pr-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs font-mono font-bold text-white outline-none focus:border-brand-500"
                   required
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-slate-700 mb-1">Description</label>
+              <label className="block text-xs font-semibold text-slate-300 mb-1">Description</label>
               <input
                 type="text"
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
-                className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-800"
+                className="w-full px-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs text-slate-200 outline-none focus:border-brand-500"
                 required
               />
             </div>
 
-            <div className="flex justify-end gap-2 pt-2">
+            <div className="flex justify-end gap-2.5 pt-2">
               <button
                 type="button"
                 onClick={onClose}
-                className="px-4 py-2 text-xs font-semibold text-slate-600 hover:bg-slate-100 rounded-lg"
+                className="px-4 py-2 text-xs font-semibold text-slate-400 hover:text-white hover:bg-slate-800 rounded-xl transition-all"
               >
                 Cancel
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="px-5 py-2 text-xs font-bold text-white bg-paypal-blue hover:bg-paypal-lightBlue rounded-lg shadow-sm flex items-center gap-1.5 disabled:opacity-50"
+                className="px-5 py-2 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-xl shadow-md shadow-brand-500/20 flex items-center gap-1.5 transition-all active:scale-95 disabled:opacity-50"
               >
                 {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Send className="w-3.5 h-3.5" />}
                 <span>Generate Payment Link</span>

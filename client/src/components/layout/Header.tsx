@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Plus, Send, Bot, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { Plus, Send, Bot, RefreshCw, CheckCircle2, Sparkles, Command } from 'lucide-react';
 import { apiClient } from '../../api/client';
 
 interface HeaderProps {
@@ -37,55 +37,59 @@ export const Header: React.FC<HeaderProps> = ({
   };
 
   return (
-    <header className="h-16 px-8 bg-white border-b border-slate-200/80 flex items-center justify-between sticky top-0 z-20 shadow-sm/50">
-      <div>
-        <h1 className="text-xl font-bold text-slate-900 tracking-tight">{title}</h1>
-        <p className="text-xs text-slate-500 font-medium">{subtitle}</p>
+    <header className="h-16 px-6 bg-dark-900/90 backdrop-blur-md border-b border-slate-800/80 flex items-center justify-between sticky top-0 z-20">
+      <div className="flex items-center gap-3">
+        <div>
+          <h1 className="text-base font-bold text-white tracking-tight flex items-center gap-2">
+            <span>{title}</span>
+          </h1>
+          <p className="text-[11px] text-slate-400 font-medium hidden sm:block">{subtitle}</p>
+        </div>
       </div>
 
-      <div className="flex items-center gap-3">
-        {/* Reset Demo Data for Hackathon Judges */}
+      <div className="flex items-center gap-2.5">
+        {/* Reset Demo Data button for Hackathon judges */}
         <button
           onClick={handleResetDemoData}
           disabled={resetting}
           title="Reset sample invoices, customers, and PayPal transactions"
-          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-600 bg-slate-100 hover:bg-slate-200 rounded-lg transition-all border border-slate-200/80 active:scale-95"
+          className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 bg-dark-850 hover:bg-dark-800 rounded-xl transition-all border border-slate-700/60 active:scale-95"
         >
           {resetSuccess ? (
             <>
-              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-              <span className="text-emerald-700">Database Seeded</span>
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+              <span className="text-emerald-400 text-[11px]">Database Reset</span>
             </>
           ) : (
             <>
-              <RefreshCw className={`w-3.5 h-3.5 text-slate-500 ${resetting ? 'animate-spin' : ''}`} />
-              <span>Reset Demo Data</span>
+              <RefreshCw className={`w-3.5 h-3.5 text-slate-400 ${resetting ? 'animate-spin' : ''}`} />
+              <span className="text-[11px] text-slate-300">Reset Demo Data</span>
             </>
           )}
         </button>
 
-        {/* Ask AI Agent quick action */}
+        {/* Hero AI Command Center Trigger */}
         <button
           onClick={onOpenAiChat}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-brand-700 bg-brand-50 hover:bg-brand-100 rounded-lg border border-brand-200 transition-all shadow-sm active:scale-95"
+          className="flex items-center gap-2 px-3.5 py-1.5 text-xs font-bold text-white bg-gradient-to-r from-brand-600 via-indigo-600 to-accent-purple hover:brightness-110 rounded-xl border border-white/10 shadow-lg shadow-brand-500/20 transition-all active:scale-95"
         >
-          <Bot className="w-4 h-4 text-brand-600" />
-          <span>Ask PayPilot AI</span>
+          <Sparkles className="w-3.5 h-3.5 text-brand-200" />
+          <span>AI Command Center</span>
         </button>
 
         {/* Request Payment */}
         <button
           onClick={onOpenPaymentRequest}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-slate-700 bg-white hover:bg-slate-50 rounded-lg border border-slate-300 transition-all shadow-sm active:scale-95"
+          className="hidden md:flex items-center gap-1.5 px-3 py-1.5 text-xs font-semibold text-slate-300 bg-dark-850 hover:bg-dark-800 rounded-xl border border-slate-700/60 transition-all active:scale-95"
         >
-          <Send className="w-3.5 h-3.5 text-slate-500" />
+          <Send className="w-3.5 h-3.5 text-slate-400" />
           <span>Request Payment</span>
         </button>
 
         {/* Create Invoice button */}
         <button
           onClick={onOpenCreateInvoice}
-          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold text-white bg-brand-600 hover:bg-brand-700 rounded-lg shadow-sm shadow-brand-600/30 transition-all active:scale-95"
+          className="flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-bold text-white bg-brand-600 hover:bg-brand-500 rounded-xl shadow-lg shadow-brand-600/25 transition-all active:scale-95"
         >
           <Plus className="w-4 h-4" />
           <span>Create Invoice</span>

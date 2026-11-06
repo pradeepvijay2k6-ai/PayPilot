@@ -51,14 +51,18 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
   };
 
   return (
-    <div className="min-h-screen bg-slate-900 flex items-center justify-center p-4 selection:bg-brand-500 selection:text-white">
-      <div className="max-w-md w-full bg-white rounded-3xl shadow-2xl overflow-hidden border border-slate-800 animate-in fade-in duration-200">
+    <div className="min-h-screen bg-dark-950 text-slate-100 flex items-center justify-center p-4 selection:bg-brand-500 selection:text-white relative overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+      {/* Background ambient lighting */}
+      <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-brand-500/10 rounded-full blur-3xl pointer-events-none" />
+      <div className="absolute bottom-1/4 right-1/3 w-80 h-80 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
+
+      <div className="max-w-md w-full glass-card rounded-3xl shadow-2xl overflow-hidden border border-slate-800 relative z-10 animate-in fade-in duration-200">
         {/* Brand Banner */}
-        <div className="bg-gradient-to-r from-navy-900 via-slate-900 to-navy-900 p-8 text-white text-center border-b border-slate-800">
-          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 to-paypal-lightBlue flex items-center justify-center mx-auto mb-3 shadow-lg shadow-brand-500/30 text-xl font-black">
+        <div className="bg-dark-900/90 p-8 text-white text-center border-b border-slate-800/80">
+          <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-violet-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-brand-500/30 text-xl font-black">
             P
           </div>
-          <h1 className="text-xl font-bold tracking-tight">PayPilot</h1>
+          <h1 className="text-xl font-bold tracking-tight text-white">PayPilot</h1>
           <p className="text-xs text-brand-300 mt-1 font-medium">
             AI-Powered Financial Operations Agent using PayPal
           </p>
@@ -70,17 +74,17 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
             type="button"
             onClick={handleDemoLogin}
             disabled={loading}
-            className="w-full py-3 bg-gradient-to-r from-brand-600 to-paypal-blue hover:from-brand-700 hover:to-paypal-blue text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-md shadow-brand-600/20 transition-all active:scale-98"
+            className="w-full py-3 bg-gradient-to-r from-brand-600 via-indigo-600 to-violet-600 hover:from-brand-500 hover:to-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-brand-500/25 transition-all active:scale-98 disabled:opacity-50"
           >
-            <Sparkles className="w-4 h-4 text-paypal-gold" />
+            <Sparkles className="w-4 h-4 text-amber-300" />
             <span>1-Click Hackathon Demo Login (Alex Morgan)</span>
           </button>
           <div className="relative my-5">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-slate-200" />
+              <div className="w-full border-t border-slate-800" />
             </div>
-            <div className="relative flex justify-center text-[10px] uppercase font-bold text-slate-400">
-              <span className="bg-white px-2">Or enter credentials</span>
+            <div className="relative flex justify-center text-[10px] uppercase font-bold text-slate-500">
+              <span className="bg-dark-900 px-3 py-0.5 rounded-full border border-slate-800">Or enter credentials</span>
             </div>
           </div>
         </div>
@@ -88,7 +92,7 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
         {/* Form */}
         <form onSubmit={handleSubmit} className="px-6 pb-6 space-y-4">
           {error && (
-            <div className="p-3 bg-rose-50 border border-rose-200 rounded-xl text-rose-700 text-xs">
+            <div className="p-3 bg-rose-950/40 border border-rose-500/30 rounded-xl text-rose-300 text-xs">
               {error}
             </div>
           )}
@@ -96,30 +100,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           {isRegister && (
             <>
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Full Name</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Full Name</label>
                 <div className="relative">
-                  <UserIcon className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <UserIcon className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
                   <input
                     type="text"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Alex Morgan"
-                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs"
+                    className="w-full pl-9 pr-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-600 outline-none focus:border-brand-500"
                     required
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">Business Name</label>
+                <label className="block text-xs font-semibold text-slate-300 mb-1">Business Name</label>
                 <div className="relative">
-                  <Building className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+                  <Building className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
                   <input
                     type="text"
                     value={businessName}
                     onChange={(e) => setBusinessName(e.target.value)}
                     placeholder="Nexus Cloud Solutions"
-                    className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs"
+                    className="w-full pl-9 pr-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-600 outline-none focus:border-brand-500"
                   />
                 </div>
               </div>
@@ -127,30 +131,30 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           )}
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Email</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Email</label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <Mail className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
               <input
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="name@business.com"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs"
+                className="w-full pl-9 pr-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-600 outline-none focus:border-brand-500"
                 required
               />
             </div>
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-slate-700 mb-1">Password</label>
+            <label className="block text-xs font-semibold text-slate-300 mb-1">Password</label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-slate-400 absolute left-3 top-2.5" />
+              <Lock className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" />
               <input
                 type="password"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="••••••••"
-                className="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg text-xs"
+                className="w-full pl-9 pr-3 py-2 bg-dark-950 border border-slate-800 rounded-xl text-xs text-slate-200 placeholder-slate-600 outline-none focus:border-brand-500"
                 required
               />
             </div>
@@ -159,16 +163,16 @@ export const LoginPage: React.FC<LoginPageProps> = ({ onLoginSuccess }) => {
           <button
             type="submit"
             disabled={loading}
-            className="w-full py-2.5 bg-slate-900 hover:bg-slate-800 text-white rounded-xl text-xs font-bold shadow-sm transition-all active:scale-98 flex items-center justify-center gap-1.5"
+            className="w-full py-2.5 bg-dark-950 hover:bg-slate-800 text-white rounded-xl text-xs font-bold border border-slate-800 shadow-md transition-all active:scale-98 flex items-center justify-center gap-1.5"
           >
-            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>{isRegister ? 'Create Account' : 'Sign In'}</span>}
+            {loading ? <Loader2 className="w-3.5 h-3.5 animate-spin text-brand-400" /> : <span>{isRegister ? 'Create Account' : 'Sign In'}</span>}
           </button>
 
           <div className="text-center pt-2">
             <button
               type="button"
               onClick={() => setIsRegister(!isRegister)}
-              className="text-xs text-brand-600 hover:underline font-semibold"
+              className="text-xs text-brand-400 hover:text-brand-300 font-semibold"
             >
               {isRegister ? 'Already have an account? Sign In' : "Don't have an account? Create One"}
             </button>

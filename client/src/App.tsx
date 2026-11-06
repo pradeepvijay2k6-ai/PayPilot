@@ -98,8 +98,8 @@ export function App() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-slate-900 flex items-center justify-center text-white text-xs font-semibold">
-        <div className="flex items-center gap-2">
+      <div className="min-h-screen bg-dark-950 flex items-center justify-center text-slate-200 text-xs font-semibold">
+        <div className="flex items-center gap-3 px-6 py-4 rounded-2xl glass-card border border-slate-800">
           <div className="w-5 h-5 border-2 border-brand-500 border-t-transparent rounded-full animate-spin" />
           <span>Starting PayPilot financial workspace...</span>
         </div>
@@ -114,7 +114,7 @@ export function App() {
   const { title, subtitle } = getPageTitle();
 
   return (
-    <div className="flex h-screen bg-slate-50 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
+    <div className="flex h-screen bg-dark-950 text-slate-100 overflow-hidden font-['Plus_Jakarta_Sans',sans-serif]">
       {/* Sidebar */}
       <Sidebar
         currentTab={currentTab}
